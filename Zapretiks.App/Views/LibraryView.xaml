@@ -1,0 +1,106 @@
+<UserControl x:Class="Zapretiks.App.Views.LibraryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="PageParts.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid Background="{DynamicResource SurfaceQuietBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.94*" MinWidth="330" />
+            <ColumnDefinition Width="1.06*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Margin="25,24,22,18">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Margin="0,0,0,15">
+                <TextBlock Text="{DynamicResource Shell.Library}" Style="{DynamicResource PageTitleText}"
+                           AutomationProperties.HeadingLevel="Level1" Margin="0,0,0,14" />
+                <WrapPanel>
+                    <Button Content="{DynamicResource Library.Import}" Command="{Binding ImportCommand}"
+                            Style="{DynamicResource SecondaryButton}" Margin="0,0,5,0"
+                            AutomationProperties.Name="{DynamicResource Library.ImportName}" />
+                    <Button Content="{DynamicResource Library.ShowPreview}" Command="{Binding ClearSelectionCommand}"
+                            Style="{DynamicResource GhostButton}" />
+                </WrapPanel>
+            </StackPanel>
+            <Border Grid.Row="1" Style="{StaticResource ProfileListFrame}" VerticalAlignment="Top">
+                <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                         SelectionChanged="OnProfileSelected" Style="{StaticResource ProfileList}"
+                         ItemTemplate="{StaticResource ProfileListRow}" AutomationProperties.Name="{DynamicResource Library.List}" />
+            </Border>
+            <Border Grid.Row="1" Style="{StaticResource EmptyArea}" VerticalAlignment="Top">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Library.Empty}" Style="{DynamicResource BodyText}" />
+                    <Button Content="{DynamicResource Library.OpenCatalog}" Command="{Binding OpenCatalogCommand}"
+                            Style="{DynamicResource GhostButton}" HorizontalAlignment="Left" Margin="-8,8,0,0" />
+                </StackPanel>
+            </Border>
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,11,0,0" AutomationProperties.LiveSetting="Polite">
+                <TextBlock Style="{StaticResource PageMetadata}" Text="{DynamicResource Table.Library}" Margin="0,0,6,0" />
+                <TextBlock Style="{StaticResource PageMetadata}" Text="{Binding Items.Count}" />
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Column="1" Background="{DynamicResource WorkspaceBrush}"
+                BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="1,0,0,0">
+            <ScrollViewer x:Name="DetailScroll" VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+                <Grid Margin="29,26,28,28" MaxWidth="600">
+                    <StackPanel Style="{StaticResource ProfileListing}">
+                        <TextBlock Text="{DynamicResource Library.Preview}" Style="{DynamicResource PageTitleText}"
+                                   TextWrapping="Wrap" AutomationProperties.HeadingLevel="Level2" />
+                        <TextBlock Text="{DynamicResource Library.PreviewHint}" Style="{DynamicResource BodyText}"
+                                   Margin="0,6,0,15" TextWrapping="Wrap" />
+                        <Button Content="{DynamicResource Library.Prepare}" Command="{Binding PrepareCommand}"
+                                Style="{DynamicResource PrimaryButton}" HorizontalAlignment="Left" Margin="0,0,0,13"
+                                AutomationProperties.Name="{DynamicResource Library.PrepareName}" />
+                        <TextBlock Style="{StaticResource PageNotice}" Text="{Binding StatusMessage}"
+                                   AutomationProperties.LiveSetting="Polite" />
+                        <TextBox Text="{Binding PreviewText, Mode=OneWay}" MaxHeight="380"
+                                 AutomationProperties.Name="{DynamicResource Library.PreviewName}">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox" BasedOn="{StaticResource RecordText}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding PreviewText}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding PreviewText}" Value="">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource ProfileDetailPage}">
+                        <ContentControl Content="{Binding SelectedItem}" ContentTemplate="{StaticResource ProfileIntro}"
+                                        HorizontalContentAlignment="Stretch" Focusable="False" />
+                        <WrapPanel Margin="0,4,0,17">
+                            <Button Content="{Binding SelectedItem.ToggleLabel}" Command="{Binding ToggleCommand}"
+                                    CommandParameter="{Binding SelectedItem}" Style="{DynamicResource PrimaryButton}"
+                                    MinWidth="104" Margin="0,0,6,4" />
+                            <Button Content="{DynamicResource Profile.Export}" Command="{Binding ExportCommand}"
+                                    CommandParameter="{Binding SelectedItem}" Style="{DynamicResource SecondaryButton}"
+                                    Margin="0,0,6,4" />
+                            <Button Content="{DynamicResource Profile.RemoveShort}" Command="{Binding RemoveCommand}"
+                                    CommandParameter="{Binding SelectedItem}" Style="{DynamicResource DangerButton}"
+                                    AutomationProperties.Name="{DynamicResource Profile.Remove}" Margin="0,0,0,4" />
+                        </WrapPanel>
+                        <TextBlock Style="{StaticResource PageNotice}" Text="{Binding StatusMessage}"
+                                   AutomationProperties.LiveSetting="Polite" />
+                        <ContentControl Content="{Binding SelectedItem}" ContentTemplate="{StaticResource ProfileDetails}"
+                                        HorizontalContentAlignment="Stretch" Focusable="False" />
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

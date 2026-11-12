@@ -1,0 +1,152 @@
+<UserControl x:Class="Zapretiks.App.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="IntegrationParts.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="SettingsSectionHeading" TargetType="TextBlock" BasedOn="{StaticResource SectionTitleText}">
+                <Setter Property="Margin" Value="0,20,0,6" />
+                <Setter Property="AutomationProperties.HeadingLevel" Value="Level2" />
+            </Style>
+            <Style x:Key="SettingsPath" TargetType="TextBlock" BasedOn="{StaticResource WorkspaceRowDetail}">
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="TextWrapping" Value="NoWrap" />
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.04*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Background="{StaticResource SurfaceQuietBrush}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          PanningMode="VerticalOnly">
+                <StackPanel Margin="26,24,26,30">
+                    <TextBlock Text="{DynamicResource Settings.Title}" Style="{StaticResource PageTitleText}"
+                               AutomationProperties.HeadingLevel="Level1" Margin="0,0,0,22" />
+                    <TextBlock Text="{DynamicResource Settings.Integration}" Style="{StaticResource SettingsSectionHeading}"
+                               Margin="0,0,0,9" />
+                    <Border Style="{StaticResource CardBorder}" Padding="0">
+                        <StackPanel>
+                            <Border Style="{StaticResource WorkspaceRow}">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Settings.Directory}" Style="{StaticResource WorkspaceRowTitle}" />
+                                    <TextBlock Text="{Binding FolderDisplay}" ToolTip="{Binding FolderDisplay}"
+                                               Style="{StaticResource SettingsPath}" />
+                                    <Button Content="{DynamicResource Common.ChooseFolder}" Command="{Binding ChooseFolderCommand}"
+                                            HorizontalAlignment="Left" Margin="0,11,0,0">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasConnectedInstallation}" Value="False">
+                                                        <Setter Property="Background" Value="{StaticResource PrimaryFillBrush}" />
+                                                        <Setter Property="Foreground" Value="{StaticResource AccentInkBrush}" />
+                                                        <Setter Property="BorderBrush" Value="{StaticResource PrimaryEdgeBrush}" />
+                                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource WorkspaceRow}">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Settings.Strategy}" Style="{StaticResource WorkspaceRowTitle}" />
+                                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource StrategyPickerTemplate}"
+                                                    HorizontalContentAlignment="Stretch" Margin="0,8,0,0" />
+                                    <TextBlock Text="{DynamicResource Settings.StrategyNote}" Style="{StaticResource WorkspaceRowDetail}" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource WorkspaceRow}" BorderThickness="0">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Settings.Diagnostics}" Style="{StaticResource WorkspaceRowTitle}" />
+                                    <DockPanel Margin="0,7,0,0">
+                                        <Ellipse DockPanel.Dock="Left" Style="{StaticResource InstallationIndicator}" />
+                                        <TextBlock Text="{Binding IntegrationTitle}" Style="{StaticResource WorkspaceRowDetail}" Margin="0"
+                                                   AutomationProperties.LiveSetting="Polite" />
+                                    </DockPanel>
+                                    <TextBlock Text="{Binding IntegrationDetail}" Style="{StaticResource WorkspaceRowDetail}" />
+                                    <ItemsControl ItemsSource="{Binding Diagnostics}" Margin="0,4,0,0">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" Style="{StaticResource WorkspaceRowDetail}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <Button Content="{DynamicResource Settings.Refresh}" Command="{Binding RefreshIntegrationCommand}"
+                                            HorizontalAlignment="Left" Margin="0,10,0,0" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <Border Grid.Column="1" Background="{StaticResource WorkspaceBrush}" BorderBrush="{StaticResource SubtleBorderBrush}"
+                BorderThickness="1,0,0,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          PanningMode="VerticalOnly">
+                <StackPanel Margin="30,33,30,30">
+                    <TextBlock Text="{DynamicResource Settings.Behavior}" Style="{StaticResource SettingsSectionHeading}"
+                               Margin="0,0,0,6" />
+                    <Border Style="{StaticResource WorkspaceFlatRow}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="SteamScanLabel" Text="{DynamicResource Settings.AutoScan}"
+                                       Style="{StaticResource WorkspaceRowTitle}" Margin="0,0,14,0" VerticalAlignment="Center" />
+                            <CheckBox Grid.Column="1" IsChecked="{Binding AutoScanSteam, Mode=TwoWay}"
+                                      Style="{StaticResource ToggleSwitch}" VerticalAlignment="Center"
+                                      AutomationProperties.LabeledBy="{Binding ElementName=SteamScanLabel}" />
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource WorkspaceFlatRow}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{DynamicResource Settings.Onboarding}" Style="{StaticResource WorkspaceRowTitle}"
+                                       Margin="0,0,14,0" VerticalAlignment="Center" />
+                            <Button Grid.Column="1" Content="{DynamicResource Settings.ShowOnboarding}"
+                                    Command="{Binding ShowOnboardingCommand}" VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
+                    <TextBlock Text="{DynamicResource Settings.LocalData}" Style="{StaticResource SettingsSectionHeading}" />
+                    <Border Style="{StaticResource WorkspaceFlatRow}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Settings.StoragePath}" Style="{StaticResource WorkspaceRowTitle}" />
+                            <TextBlock Text="{Binding DataFolderDisplay}" ToolTip="{Binding DataFolderDisplay}"
+                                       Style="{StaticResource SettingsPath}" />
+                            <Button Content="{DynamicResource Settings.OpenData}" Command="{Binding OpenDataFolderCommand}"
+                                    HorizontalAlignment="Left" Margin="0,10,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <TextBlock Text="{DynamicResource Settings.About}" Style="{StaticResource SettingsSectionHeading}" />
+                    <Border Style="{StaticResource WorkspaceFlatRow}" BorderThickness="0">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource WorkspaceRowTitle}">
+                                <Run Text="Zapretiks&#xA0;" /><Run Text="{Binding VersionText, Mode=OneWay}" />
+                            </TextBlock>
+                            <TextBlock Text="{DynamicResource Settings.Credit}" Style="{StaticResource WorkspaceRowDetail}" />
+                            <Button Content="{DynamicResource Settings.Upstream}" Command="{Binding OpenUpstreamCommand}"
+                                    HorizontalAlignment="Left" Margin="0,10,0,0" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Zapretiks.App/Zapretiks.App.csproj" />
+  <Project Path="Zapretiks.Core/Zapretiks.Core.csproj" />
+  <Project Path="Zapretiks.Infrastructure/Zapretiks.Infrastructure.csproj" />
+  <Project Path="Zapretiks.Tests/Zapretiks.Tests.csproj" />
+</Solution>

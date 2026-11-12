@@ -1,0 +1,65 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style x:Key="WorkspaceRow" TargetType="Border">
+        <Setter Property="Padding" Value="15,12" />
+        <Setter Property="MinHeight" Value="58" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+        <Setter Property="BorderBrush" Value="{StaticResource SubtleBorderBrush}" />
+    </Style>
+    <Style x:Key="WorkspaceFlatRow" TargetType="Border" BasedOn="{StaticResource WorkspaceRow}">
+        <Setter Property="Padding" Value="0,12" />
+    </Style>
+    <Style x:Key="WorkspaceRowTitle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style x:Key="WorkspaceRowDetail" TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
+        <Setter Property="Margin" Value="0,4,0,0" />
+    </Style>
+    <Style x:Key="InstallationIndicator" TargetType="Ellipse">
+        <Setter Property="Width" Value="7" />
+        <Setter Property="Height" Value="7" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,8,0" />
+        <Setter Property="Fill" Value="{StaticResource SubtleBrush}" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding HasConnectedInstallation}" Value="True">
+                <Setter Property="Fill" Value="{StaticResource SuccessBrush}" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+    <DataTemplate x:Key="StrategyPickerTemplate">
+        <Grid>
+            <ComboBox x:Name="StrategyPicker"
+                      ItemsSource="{Binding Strategies}"
+                      IsEnabled="{Binding CanSelectStrategy}"
+                      SelectedItem="{Binding SelectedStrategy, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      AutomationProperties.Name="{DynamicResource Settings.Strategy}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" ToolTip="{Binding}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock IsHitTestVisible="False" Foreground="{StaticResource MutedBrush}"
+                       Margin="12,0,29,0" TextTrimming="CharacterEllipsis" VerticalAlignment="Center">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Text" Value="{DynamicResource Settings.NoStrategy}" />
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedIndex, ElementName=StrategyPicker}" Value="-1">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding HasConnectedInstallation}" Value="False">
+                                <Setter Property="Text" Value="{DynamicResource Settings.StrategyUnavailable}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </Grid>
+    </DataTemplate>
+</ResourceDictionary>

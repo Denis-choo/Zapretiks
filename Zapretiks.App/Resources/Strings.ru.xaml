@@ -1,0 +1,58 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <sys:String x:Key="Shell.Home">Обзор</sys:String>
+    <sys:String x:Key="Shell.Catalog">Каталог решений</sys:String>
+    <sys:String x:Key="Shell.Library">Мои решения</sys:String>
+    <sys:String x:Key="Shell.Games">Обнаруженные игры</sys:String>
+    <sys:String x:Key="Shell.Settings">Настройки</sys:String>
+    <sys:String x:Key="Shell.Minimize">Свернуть</sys:String>
+    <sys:String x:Key="Shell.Maximize">Развернуть</sys:String>
+    <sys:String x:Key="Shell.Restore">Восстановить</sys:String>
+    <sys:String x:Key="Shell.Close">Закрыть</sys:String>
+    <sys:String x:Key="Shell.Dismiss">Закрыть уведомление</sys:String>
+
+    <sys:String x:Key="Onboarding.Title">Подключите сборку Flowseal</sys:String>
+    <sys:String x:Key="Onboarding.Body">Выберите папку со сборкой, чтобы посмотреть доступные стратегии и подготовить списки.</sys:String>
+    <sys:String x:Key="Onboarding.Note">Каталог и библиотека доступны без подключения.</sys:String>
+    <sys:String x:Key="Onboarding.Skip">Позже</sys:String>
+    <sys:String x:Key="Common.ChooseFolder">Выбрать папку</sys:String>
+
+    <sys:String x:Key="Home.Title">Обзор</sys:String>
+    <sys:String x:Key="Home.ConnectFolder">Подключить папку</sys:String>
+    <sys:String x:Key="Home.ChangeFolder">Сменить папку</sys:String>
+    <sys:String x:Key="Home.Strategy">Стратегия</sys:String>
+    <sys:String x:Key="Home.StrategyNote">Используется при подготовке предпросмотра.</sys:String>
+    <sys:String x:Key="Home.Runtime">Запуск zapret</sys:String>
+    <sys:String x:Key="Home.Integration">Сборка Flowseal</sys:String>
+    <sys:String x:Key="Home.IntegrationDetails">Файлы сборки</sys:String>
+    <sys:String x:Key="Home.IntegrationSettings">Настройки сборки</sys:String>
+    <sys:String x:Key="Home.Profiles">Профили</sys:String>
+    <sys:String x:Key="Home.Library">Мои решения</sys:String>
+    <sys:String x:Key="Home.LibraryEmpty">Пока нет сохранённых профилей.</sys:String>
+    <sys:String x:Key="Home.Installed">Добавлено</sys:String>
+    <sys:String x:Key="Home.Enabled">Включено</sys:String>
+    <sys:String x:Key="Home.CatalogHint">Профили игр и сервисов.</sys:String>
+    <sys:String x:Key="Home.GoToLibrary">Открыть библиотеку</sys:String>
+    <sys:String x:Key="Home.GoToCatalog">Открыть каталог</sys:String>
+
+    <sys:String x:Key="Settings.Title">Настройки</sys:String>
+    <sys:String x:Key="Settings.Integration">Сборка Flowseal</sys:String>
+    <sys:String x:Key="Settings.Directory">Папка сборки</sys:String>
+    <sys:String x:Key="Settings.Refresh">Проверить снова</sys:String>
+    <sys:String x:Key="Settings.Strategy">Стратегия</sys:String>
+    <sys:String x:Key="Settings.NoStrategy">Не выбрана</sys:String>
+    <sys:String x:Key="Settings.StrategyUnavailable">Сборка не подключена</sys:String>
+    <sys:String x:Key="Settings.StrategyNote">Выбор сохраняется между запусками.</sys:String>
+    <sys:String x:Key="Settings.Diagnostics">Диагностика</sys:String>
+    <sys:String x:Key="Settings.Behavior">Поведение</sys:String>
+    <sys:String x:Key="Settings.AutoScan">Искать игры Steam при открытии раздела</sys:String>
+    <sys:String x:Key="Settings.Onboarding">Мастер подключения</sys:String>
+    <sys:String x:Key="Settings.ShowOnboarding">Открыть мастер</sys:String>
+    <sys:String x:Key="Settings.LocalData">Локальные данные</sys:String>
+    <sys:String x:Key="Settings.StoragePath">Папка хранения профилей</sys:String>
+    <sys:String x:Key="Settings.OpenData">Открыть папку данных</sys:String>
+    <sys:String x:Key="Settings.About">О приложении</sys:String>
+    <sys:String x:Key="Settings.Credit">Zapretiks работает со сборкой zapret-discord-youtube от Flowseal. Автор оригинального zapret — bol-van.</sys:String>
+    <sys:String x:Key="Settings.Upstream">Репозиторий Flowseal</sys:String>
+</ResourceDictionary>

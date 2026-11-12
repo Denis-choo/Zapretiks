@@ -1,0 +1,298 @@
+<Window x:Class="Zapretiks.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:vm="clr-namespace:Zapretiks.App.ViewModels"
+        xmlns:views="clr-namespace:Zapretiks.App.Views"
+        Title="Zapretiks" Width="1100" Height="730" MinWidth="850" MinHeight="470"
+        WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
+        Icon="Assets/Zapretiks.ico" Style="{StaticResource {x:Type Window}}" Language="ru-RU">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="35" ResizeBorderThickness="6"
+                            GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False" />
+    </shell:WindowChrome.WindowChrome>
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Brand.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <BooleanToVisibilityConverter x:Key="BooleanVisibility" />
+            <DataTemplate DataType="{x:Type vm:HomeViewModel}"><views:HomeView /></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:CatalogViewModel}"><views:CatalogView /></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:LibraryViewModel}"><views:LibraryView /></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:GamesViewModel}"><views:GamesView /></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:SettingsViewModel}"><views:SettingsView /></DataTemplate>
+
+            <Geometry x:Key="OverviewGlyph">M2.7,10.4 L11,3.1 19.3,10.4 M4.6,9.1 V18.6 H9 V13.5 H13 V18.6 H17.4 V9.1</Geometry>
+            <Geometry x:Key="CatalogGlyph">M3.6,3.8 H9.1 V9.3 H3.6 Z M12.9,3.8 H18.4 V9.3 H12.9 Z M3.6,12.7 H9.1 V18.2 H3.6 Z M12.9,12.7 H18.4 V18.2 H12.9 Z</Geometry>
+            <Geometry x:Key="LibraryGlyph">M3,6.3 H8.2 L10.2,8.4 H19 V17.7 H3 Z M3,10.8 H19</Geometry>
+            <Geometry x:Key="GamesGlyph">M7.5,7 H14.5 Q17,7 17.9,9.6 L19.5,14.8 Q20,17.3 17.6,17.3 Q16.9,17.3 14.8,15.2 H7.2 Q5.1,17.3 4.4,17.3 Q2,17.3 2.5,14.8 L4.1,9.6 Q5,7 7.5,7 Z M7.2,9.7 V13.4 M5.4,11.5 H9 M14.2,11.9 H14.3 M16.1,10.2 H16.2</Geometry>
+            <Geometry x:Key="SettingsGlyph">M6,3.5 V7.5 M6,11.5 V18.5 M11,3.5 V12.5 M11,16.5 V18.5 M16,3.5 V5.5 M16,9.5 V18.5 M4,9.5 A2,2 0 1 1 8,9.5 A2,2 0 1 1 4,9.5 M9,14.5 A2,2 0 1 1 13,14.5 A2,2 0 1 1 9,14.5 M14,7.5 A2,2 0 1 1 18,7.5 A2,2 0 1 1 14,7.5</Geometry>
+
+            <Style x:Key="NavigationTab" TargetType="Button" BasedOn="{StaticResource GhostButton}">
+                <Setter Property="Command" Value="{Binding NavigateCommand}" />
+                <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+                <Setter Property="Width" Value="43" />
+                <Setter Property="Height" Value="43" />
+                <Setter Property="MinHeight" Value="0" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="ToolTipService.InitialShowDelay" Value="380" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Grid Background="Transparent">
+                                <Border x:Name="TabBackground" CornerRadius="9"
+                                        Background="Transparent" BorderBrush="Transparent" BorderThickness="1" />
+                                <Path Width="20" Height="20" Stretch="Uniform"
+                                      Data="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Stroke="{TemplateBinding Foreground}" StrokeThickness="1.55"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <Border x:Name="TabIndicator" Width="2" Height="17" Margin="-1,0,0,0"
+                                        HorizontalAlignment="Left" VerticalAlignment="Center"
+                                        CornerRadius="1" Visibility="Collapsed"
+                                        Background="{StaticResource AccentBrush}" />
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="TabBackground" Property="Background" Value="{StaticResource HoverBrush}" />
+                                    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+                                </Trigger>
+                                <Trigger Property="Tag" Value="Selected">
+                                    <Setter TargetName="TabIndicator" Property="Visibility" Value="Visible" />
+                                    <Setter TargetName="TabBackground" Property="Background" Value="{StaticResource AccentSurfaceBrush}" />
+                                    <Setter Property="Foreground" Value="{StaticResource AccentSoftBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="TabBackground" Property="Background" Value="{StaticResource PressedBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                    <Setter TargetName="TabBackground" Property="BorderBrush" Value="{StaticResource FocusBrush}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="CaptionButton" TargetType="Button" BasedOn="{StaticResource ChromeButton}">
+                <Setter Property="Width" Value="44" />
+                <Setter Property="Height" Value="35" />
+                <Setter Property="ToolTipService.InitialShowDelay" Value="600" />
+            </Style>
+
+            <Style x:Key="WorkspacePresenter" TargetType="ContentControl">
+                <Setter Property="Focusable" Value="False" />
+                <Setter Property="IsTabStop" Value="False" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ContentControl">
+                            <Border Background="{TemplateBinding Background}">
+                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Background="{StaticResource CanvasBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="62" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.ColumnSpan="2" Background="{StaticResource SidebarBrush}"
+                BorderBrush="{StaticResource SubtleBorderBrush}" BorderThickness="0,0,0,1">
+            <Grid>
+                <StackPanel Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">
+                    <Image Source="{StaticResource ZapretiksMark}" Width="17" Height="17" Margin="0,0,8,0" />
+                    <TextBlock Text="Zapretiks" Foreground="{StaticResource TextBrush}"
+                               VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Style="{StaticResource CaptionButton}" Content="&#xE921;" Click="MinimizeWindow"
+                            AutomationProperties.Name="{DynamicResource Shell.Minimize}" ToolTip="{DynamicResource Shell.Minimize}" />
+                    <Button Click="ToggleMaximized">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource CaptionButton}">
+                                <Setter Property="Content" Value="&#xE922;" />
+                                <Setter Property="AutomationProperties.Name" Value="{DynamicResource Shell.Maximize}" />
+                                <Setter Property="ToolTip" Value="{DynamicResource Shell.Maximize}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}" Value="Maximized">
+                                        <Setter Property="Content" Value="&#xE923;" />
+                                        <Setter Property="AutomationProperties.Name" Value="{DynamicResource Shell.Restore}" />
+                                        <Setter Property="ToolTip" Value="{DynamicResource Shell.Restore}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Style="{StaticResource CaptionButton}" Tag="Close" Content="&#xE8BB;" Click="CloseWindow"
+                            AutomationProperties.Name="{DynamicResource Shell.Close}" ToolTip="{DynamicResource Shell.Close}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border x:Name="NavigationBar" Grid.Row="1" Background="{StaticResource SidebarBrush}"
+                BorderBrush="{StaticResource SubtleBorderBrush}" BorderThickness="0,0,1,0">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsOnboarding}" Value="True">
+                            <Setter Property="IsEnabled" Value="False" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <Grid x:Name="NavigationPanel" Margin="0,12" KeyboardNavigation.DirectionalNavigation="Cycle">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="48" />
+                    <RowDefinition Height="48" />
+                    <RowDefinition Height="48" />
+                    <RowDefinition Height="48" />
+                    <RowDefinition />
+                    <RowDefinition Height="48" />
+                </Grid.RowDefinitions>
+                <Button Content="{StaticResource OverviewGlyph}" CommandParameter="Home"
+                        ToolTip="{DynamicResource Shell.Home}" AutomationProperties.Name="{DynamicResource Shell.Home}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource NavigationTab}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedPageKey}" Value="Home">
+                                    <Setter Property="Tag" Value="Selected" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Grid.Row="1" Content="{StaticResource CatalogGlyph}" CommandParameter="Catalog"
+                        ToolTip="{DynamicResource Shell.Catalog}" AutomationProperties.Name="{DynamicResource Shell.Catalog}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource NavigationTab}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedPageKey}" Value="Catalog">
+                                    <Setter Property="Tag" Value="Selected" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Grid.Row="2" Content="{StaticResource LibraryGlyph}" CommandParameter="Library"
+                        ToolTip="{DynamicResource Shell.Library}" AutomationProperties.Name="{DynamicResource Shell.Library}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource NavigationTab}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedPageKey}" Value="Library">
+                                    <Setter Property="Tag" Value="Selected" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Grid.Row="3" Content="{StaticResource GamesGlyph}" CommandParameter="Games"
+                        ToolTip="{DynamicResource Shell.Games}" AutomationProperties.Name="{DynamicResource Shell.Games}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource NavigationTab}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedPageKey}" Value="Games">
+                                    <Setter Property="Tag" Value="Selected" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Grid.Row="5" Content="{StaticResource SettingsGlyph}" CommandParameter="Settings"
+                        ToolTip="{DynamicResource Shell.Settings}" AutomationProperties.Name="{DynamicResource Shell.Settings}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource NavigationTab}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedPageKey}" Value="Settings">
+                                    <Setter Property="Tag" Value="Selected" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" Grid.Column="1" ClipToBounds="True" Background="{StaticResource CanvasBrush}">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsOnboarding}" Value="True">
+                            <Setter Property="IsEnabled" Value="False" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <ContentControl x:Name="PageHost" Style="{StaticResource WorkspacePresenter}" />
+            <ContentControl x:Name="AlternatePageHost" Style="{StaticResource WorkspacePresenter}" Visibility="Collapsed" />
+        </Grid>
+
+        <Grid x:Name="OnboardingOverlay" Grid.Row="1" Grid.ColumnSpan="2" Panel.ZIndex="4"
+              Visibility="{Binding IsOnboarding, Converter={StaticResource BooleanVisibility}}"
+              IsVisibleChanged="FocusOnboarding" Background="#A8000000"
+              KeyboardNavigation.TabNavigation="Cycle">
+            <Border Width="450" MaxWidth="510" Padding="24" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    CornerRadius="12" Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Onboarding.Title}" Style="{StaticResource SectionTitleText}"
+                               AutomationProperties.HeadingLevel="Level1" />
+                    <TextBlock Text="{DynamicResource Onboarding.Body}" Style="{StaticResource BodyText}" Margin="0,9,0,0" />
+                    <TextBlock Text="{DynamicResource Onboarding.Note}" Style="{StaticResource CaptionText}" Margin="0,7,0,0" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">
+                        <Button Content="{DynamicResource Onboarding.Skip}" Command="{Binding SkipOnboardingCommand}" Margin="0,0,8,0" />
+                        <Button x:Name="OnboardingChooseButton" Content="{DynamicResource Common.ChooseFolder}"
+                                Command="{Binding ChooseFolderCommand}" Style="{StaticResource PrimaryButton}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="1" Grid.Column="1" Panel.ZIndex="5" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                MaxWidth="470" Margin="18" Background="{StaticResource SurfaceRaisedBrush}"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Notice}" Value="{x:Null}"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                        <DataTrigger Binding="{Binding Notice}" Value=""><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <DockPanel>
+                <Border DockPanel.Dock="Left" Width="3">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding NoticeKind}" Value="Success"><Setter Property="Background" Value="{StaticResource SuccessBrush}" /></DataTrigger>
+                                <DataTrigger Binding="{Binding NoticeKind}" Value="Warning"><Setter Property="Background" Value="{StaticResource WarningBrush}" /></DataTrigger>
+                                <DataTrigger Binding="{Binding NoticeKind}" Value="Error"><Setter Property="Background" Value="{StaticResource ErrorBrush}" /></DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+                <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}" Content="&#xE8BB;"
+                        Width="30" Height="30" Margin="2,4,4,4" Command="{Binding DismissNoticeCommand}"
+                        AutomationProperties.Name="{DynamicResource Shell.Dismiss}" ToolTip="{DynamicResource Shell.Dismiss}" />
+                <TextBlock Text="{Binding Notice}" Foreground="{StaticResource TextBrush}" TextWrapping="Wrap"
+                           VerticalAlignment="Center" Margin="11,8" AutomationProperties.LiveSetting="Polite" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>
