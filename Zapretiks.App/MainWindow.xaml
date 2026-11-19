@@ -13,10 +13,6 @@
     </shell:WindowChrome.WindowChrome>
     <Window.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/Brand.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-
             <BooleanToVisibilityConverter x:Key="BooleanVisibility" />
             <DataTemplate DataType="{x:Type vm:HomeViewModel}"><views:HomeView /></DataTemplate>
             <DataTemplate DataType="{x:Type vm:CatalogViewModel}"><views:CatalogView /></DataTemplate>
@@ -24,31 +20,21 @@
             <DataTemplate DataType="{x:Type vm:GamesViewModel}"><views:GamesView /></DataTemplate>
             <DataTemplate DataType="{x:Type vm:SettingsViewModel}"><views:SettingsView /></DataTemplate>
 
-            <Geometry x:Key="OverviewGlyph">M2.7,10.4 L11,3.1 19.3,10.4 M4.6,9.1 V18.6 H9 V13.5 H13 V18.6 H17.4 V9.1</Geometry>
-            <Geometry x:Key="CatalogGlyph">M3.6,3.8 H9.1 V9.3 H3.6 Z M12.9,3.8 H18.4 V9.3 H12.9 Z M3.6,12.7 H9.1 V18.2 H3.6 Z M12.9,12.7 H18.4 V18.2 H12.9 Z</Geometry>
-            <Geometry x:Key="LibraryGlyph">M3,6.3 H8.2 L10.2,8.4 H19 V17.7 H3 Z M3,10.8 H19</Geometry>
-            <Geometry x:Key="GamesGlyph">M7.5,7 H14.5 Q17,7 17.9,9.6 L19.5,14.8 Q20,17.3 17.6,17.3 Q16.9,17.3 14.8,15.2 H7.2 Q5.1,17.3 4.4,17.3 Q2,17.3 2.5,14.8 L4.1,9.6 Q5,7 7.5,7 Z M7.2,9.7 V13.4 M5.4,11.5 H9 M14.2,11.9 H14.3 M16.1,10.2 H16.2</Geometry>
-            <Geometry x:Key="SettingsGlyph">M6,3.5 V7.5 M6,11.5 V18.5 M11,3.5 V12.5 M11,16.5 V18.5 M16,3.5 V5.5 M16,9.5 V18.5 M4,9.5 A2,2 0 1 1 8,9.5 A2,2 0 1 1 4,9.5 M9,14.5 A2,2 0 1 1 13,14.5 A2,2 0 1 1 9,14.5 M14,7.5 A2,2 0 1 1 18,7.5 A2,2 0 1 1 14,7.5</Geometry>
-
             <Style x:Key="NavigationTab" TargetType="Button" BasedOn="{StaticResource GhostButton}">
                 <Setter Property="Command" Value="{Binding NavigateCommand}" />
                 <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
-                <Setter Property="Width" Value="43" />
-                <Setter Property="Height" Value="43" />
+                <Setter Property="Height" Value="40" />
                 <Setter Property="MinHeight" Value="0" />
-                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="ToolTipService.InitialShowDelay" Value="380" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
                             <Grid Background="Transparent">
-                                <Border x:Name="TabBackground" CornerRadius="9"
+                                <Border x:Name="TabBackground" CornerRadius="6"
                                         Background="Transparent" BorderBrush="Transparent" BorderThickness="1" />
-                                <Path Width="20" Height="20" Stretch="Uniform"
-                                      Data="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}"
-                                      Stroke="{TemplateBinding Foreground}" StrokeThickness="1.55"
-                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
-                                      HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <TextBlock Text="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}"
+                                           FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" Margin="12,0" />
                                 <Border x:Name="TabIndicator" Width="2" Height="17" Margin="-1,0,0,0"
                                         HorizontalAlignment="Left" VerticalAlignment="Center"
                                         CornerRadius="1" Visibility="Collapsed"
@@ -59,7 +45,7 @@
                                     <Setter TargetName="TabBackground" Property="Background" Value="{StaticResource HoverBrush}" />
                                     <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
                                 </Trigger>
-                                <Trigger Property="Tag" Value="Selected">
+                                <Trigger Property="AutomationProperties.ItemStatus" Value="Выбран">
                                     <Setter TargetName="TabIndicator" Property="Visibility" Value="Visible" />
                                     <Setter TargetName="TabBackground" Property="Background" Value="{StaticResource AccentSurfaceBrush}" />
                                     <Setter Property="Foreground" Value="{StaticResource AccentSoftBrush}" />
@@ -108,7 +94,7 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="62" />
+            <ColumnDefinition Width="136" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
 
@@ -116,9 +102,8 @@
                 BorderBrush="{StaticResource SubtleBorderBrush}" BorderThickness="0,0,0,1">
             <Grid>
                 <StackPanel Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">
-                    <Image Source="{StaticResource ZapretiksMark}" Width="17" Height="17" Margin="0,0,8,0" />
                     <TextBlock Text="Zapretiks" Foreground="{StaticResource TextBrush}"
-                               VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold" />
+                               VerticalAlignment="Center" FontSize="14" FontWeight="Bold" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Style="{StaticResource CaptionButton}" Content="&#xE921;" Click="MinimizeWindow"
@@ -156,70 +141,70 @@
                     </Style.Triggers>
                 </Style>
             </Border.Style>
-            <Grid x:Name="NavigationPanel" Margin="0,12" KeyboardNavigation.DirectionalNavigation="Cycle">
+            <Grid x:Name="NavigationPanel" Margin="7,17" KeyboardNavigation.DirectionalNavigation="Cycle">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="48" />
-                    <RowDefinition Height="48" />
-                    <RowDefinition Height="48" />
-                    <RowDefinition Height="48" />
+                    <RowDefinition Height="44" />
+                    <RowDefinition Height="44" />
+                    <RowDefinition Height="44" />
+                    <RowDefinition Height="44" />
                     <RowDefinition />
-                    <RowDefinition Height="48" />
+                    <RowDefinition Height="44" />
                 </Grid.RowDefinitions>
-                <Button Content="{StaticResource OverviewGlyph}" CommandParameter="Home"
+                <Button Content="{DynamicResource Shell.Home}" CommandParameter="Home"
                         ToolTip="{DynamicResource Shell.Home}" AutomationProperties.Name="{DynamicResource Shell.Home}">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource NavigationTab}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding SelectedPageKey}" Value="Home">
-                                    <Setter Property="Tag" Value="Selected" />
+                                    <Setter Property="AutomationProperties.ItemStatus" Value="Выбран" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Button.Style>
                 </Button>
-                <Button Grid.Row="1" Content="{StaticResource CatalogGlyph}" CommandParameter="Catalog"
+                <Button Grid.Row="1" Content="{DynamicResource Shell.Catalog}" CommandParameter="Catalog"
                         ToolTip="{DynamicResource Shell.Catalog}" AutomationProperties.Name="{DynamicResource Shell.Catalog}">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource NavigationTab}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding SelectedPageKey}" Value="Catalog">
-                                    <Setter Property="Tag" Value="Selected" />
+                                    <Setter Property="AutomationProperties.ItemStatus" Value="Выбран" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Button.Style>
                 </Button>
-                <Button Grid.Row="2" Content="{StaticResource LibraryGlyph}" CommandParameter="Library"
+                <Button Grid.Row="2" Content="{DynamicResource Shell.Library}" CommandParameter="Library"
                         ToolTip="{DynamicResource Shell.Library}" AutomationProperties.Name="{DynamicResource Shell.Library}">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource NavigationTab}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding SelectedPageKey}" Value="Library">
-                                    <Setter Property="Tag" Value="Selected" />
+                                    <Setter Property="AutomationProperties.ItemStatus" Value="Выбран" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Button.Style>
                 </Button>
-                <Button Grid.Row="3" Content="{StaticResource GamesGlyph}" CommandParameter="Games"
+                <Button Grid.Row="3" Content="{DynamicResource Shell.Games}" CommandParameter="Games"
                         ToolTip="{DynamicResource Shell.Games}" AutomationProperties.Name="{DynamicResource Shell.Games}">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource NavigationTab}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding SelectedPageKey}" Value="Games">
-                                    <Setter Property="Tag" Value="Selected" />
+                                    <Setter Property="AutomationProperties.ItemStatus" Value="Выбран" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Button.Style>
                 </Button>
-                <Button Grid.Row="5" Content="{StaticResource SettingsGlyph}" CommandParameter="Settings"
+                <Button Grid.Row="5" Content="{DynamicResource Shell.Settings}" CommandParameter="Settings"
                         ToolTip="{DynamicResource Shell.Settings}" AutomationProperties.Name="{DynamicResource Shell.Settings}">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource NavigationTab}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding SelectedPageKey}" Value="Settings">
-                                    <Setter Property="Tag" Value="Selected" />
+                                    <Setter Property="AutomationProperties.ItemStatus" Value="Выбран" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -246,6 +231,9 @@
               Visibility="{Binding IsOnboarding, Converter={StaticResource BooleanVisibility}}"
               IsVisibleChanged="FocusOnboarding" Background="#A8000000"
               KeyboardNavigation.TabNavigation="Cycle">
+            <Grid.InputBindings>
+                <KeyBinding Key="Escape" Command="{Binding SkipOnboardingCommand}" />
+            </Grid.InputBindings>
             <Border Width="450" MaxWidth="510" Padding="24" HorizontalAlignment="Center" VerticalAlignment="Center"
                     CornerRadius="12" Background="{StaticResource SurfaceBrush}"
                     BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
@@ -253,7 +241,6 @@
                     <TextBlock Text="{DynamicResource Onboarding.Title}" Style="{StaticResource SectionTitleText}"
                                AutomationProperties.HeadingLevel="Level1" />
                     <TextBlock Text="{DynamicResource Onboarding.Body}" Style="{StaticResource BodyText}" Margin="0,9,0,0" />
-                    <TextBlock Text="{DynamicResource Onboarding.Note}" Style="{StaticResource CaptionText}" Margin="0,7,0,0" />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">
                         <Button Content="{DynamicResource Onboarding.Skip}" Command="{Binding SkipOnboardingCommand}" Margin="0,0,8,0" />
                         <Button x:Name="OnboardingChooseButton" Content="{DynamicResource Common.ChooseFolder}"
@@ -265,7 +252,7 @@
 
         <Border Grid.Row="1" Grid.Column="1" Panel.ZIndex="5" HorizontalAlignment="Right" VerticalAlignment="Bottom"
                 MaxWidth="470" Margin="18" Background="{StaticResource SurfaceRaisedBrush}"
-                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4">
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="9">
             <Border.Style>
                 <Style TargetType="Border">
                     <Style.Triggers>

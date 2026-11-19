@@ -13,6 +13,7 @@ internal sealed class ShellViewModel : ViewModel
     private string? notice;
     private string noticeKind = "Information";
     private bool initialized;
+    private bool isOnboarding;
 
     public ShellViewModel(Session session, ICatalogService catalogService, IProfileTransfer transfer,
         IConfigurationPreview preview, ISteamScanner scanner)
@@ -24,31 +25,66 @@ internal sealed class ShellViewModel : ViewModel
                 Navigate(key);
             return Task.CompletedTask;
         });
-        ChooseFolderCommand = session.ChooseFolderCommand;
-        SkipOnboardingCommand = session.Command(() => session.UpdateSettingsAsync(settings =>
-            settings with { OnboardingCompleted = true }));
-        var showOnboarding = session.Command(() => session.UpdateSettingsAsync(settings =>
-            settings with { OnboardingCompleted = false }));
+        ChooseFolderCommand = session.Command(async () =>
+        {
+            if (await session.ChooseFolderAsync())
+                IsOnboarding = false;
+        }, () => session.CanSave);
+        SkipOnboardingCommand = session.Action(() => IsOnboarding = false);
+        var showOnboarding = session.Action(() => IsOnboarding = true);
         var openCatalog = session.Action(() => Navigate("Catalog"));
         DismissNoticeCommand = session.Action(() => Notice = null);
 
-        var home = new HomeViewModel(session, openCatalog, session.Action(() => Navigate("Library")),
-            session.Action(() => Navigate("Settings")));
-        catalog = new CatalogViewModel(session, catalogService);
         var library = new LibraryViewModel(session, transfer, preview, openCatalog);
+        bool OpenLibraryForAction()
+        {
+            Navigate("Library");
+            if (library.IsBrowsing)
+                return true;
+            session.Notify("Сохраните или отмените открытый черновик профиля.");
+            return false;
+        }
+        var createProfile = session.Command(() =>
+        {
+            if (OpenLibraryForAction())
+                library.CreateCommand.Execute(null);
+            return Task.CompletedTask;
+        }, () => session.CanSave);
+        var openPreview = session.Command(() =>
+        {
+            if (OpenLibraryForAction())
+                library.ReviewChangesCommand.Execute(null);
+            return Task.CompletedTask;
+        }, () => library.HasItems);
+        catalog = new CatalogViewModel(session, catalogService, id =>
+        {
+            if (OpenLibraryForAction())
+                library.SelectedItem = library.Items.FirstOrDefault(row =>
+                    string.Equals(row.Id, id, StringComparison.OrdinalIgnoreCase));
+        });
+        var browseFromHome = session.Action(() =>
+        {
+            if (session.State.Settings.ZapretDirectory is null)
+            {
+                catalog.ResetFiltersCommand.Execute(null);
+                catalog.SelectedItem = catalog.Items.FirstOrDefault(row => row.IsDemo) ?? catalog.Items.FirstOrDefault();
+            }
+            Navigate("Catalog");
+        });
+        var home = new HomeViewModel(session, browseFromHome, session.Action(() => Navigate("Library")),
+            session.Action(() => Navigate("Settings")), createProfile, openPreview);
         games = new GamesViewModel(session, scanner);
         var settings = new SettingsViewModel(session, showOnboarding);
 
         pages =
         [
             ("Home", "Обзор", home),
-            ("Catalog", "Каталог решений", catalog),
-            ("Library", "Мои решения", library),
-            ("Games", "Обнаруженные игры", games),
+            ("Catalog", "Каталог", catalog),
+            ("Library", "Мои профили", library),
+            ("Games", "Игры Steam", games),
             ("Settings", "Настройки", settings)
         ];
 
-        session.Changed += () => Raise(nameof(IsOnboarding));
         session.Notification += (message, kind) =>
         {
             Set(ref noticeKind, kind.ToString(), nameof(NoticeKind));
@@ -60,7 +96,7 @@ internal sealed class ShellViewModel : ViewModel
     public string PageTitle => pages[CurrentPageIndex].Title;
     public string SelectedPageKey => pages[CurrentPageIndex].Key;
     public int CurrentPageIndex => currentPageIndex;
-    public bool IsOnboarding => initialized && session.CanSave && !session.State.Settings.OnboardingCompleted;
+    public bool IsOnboarding { get => isOnboarding; private set => Set(ref isOnboarding, value); }
     public bool CanNavigateWithWheel => initialized && !IsOnboarding;
     public string? Notice { get => notice; private set => Set(ref notice, value); }
     public string NoticeKind => noticeKind;
@@ -73,7 +109,6 @@ internal sealed class ShellViewModel : ViewModel
     {
         await Task.WhenAll(session.InitializeAsync(), catalog.LoadAsync());
         initialized = true;
-        Raise(nameof(IsOnboarding));
         TryAutoScan();
     }
 

@@ -21,7 +21,8 @@ public partial class App : Application
         dataDirectory = Environment.GetEnvironmentVariable("ZAPRETIKS_TEST_DATA");
 #endif
         var store = new JsonUserStore(dataDirectory);
-        var services = new Session(store, new FlowsealInspector(), new DesktopDialogs(), new LocalLog(store.DataDirectory));
+        var services = new Session(store, new FlowsealInspector(), new DesktopDialogs(), new LocalLog(store.DataDirectory),
+            new FlowsealRuntimeInspector());
         var shell = new ShellViewModel(services, new EmbeddedCatalogService(), new JsonProfileTransfer(),
             new FlowsealConfigurationPreview(), new SteamScanner());
 

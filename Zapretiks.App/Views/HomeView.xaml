@@ -6,247 +6,222 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="IntegrationParts.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <Style x:Key="OverviewLink" TargetType="Button">
-                <Setter Property="Background" Value="Transparent" />
-                <Setter Property="BorderBrush" Value="Transparent" />
-                <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
-                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                <Setter Property="VerticalContentAlignment" Value="Center" />
-                <Setter Property="Padding" Value="13,12" />
-                <Setter Property="MinHeight" Value="64" />
-                <Setter Property="Cursor" Value="Hand" />
-                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="LinkSurface" Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="6">
-                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="LinkSurface" Property="Background" Value="{StaticResource HoverBrush}" />
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="LinkSurface" Property="Background" Value="{StaticResource PressedBrush}" />
-                                </Trigger>
-                                <Trigger Property="IsKeyboardFocused" Value="True">
-                                    <Setter TargetName="LinkSurface" Property="BorderBrush" Value="{StaticResource FocusBrush}" />
-                                </Trigger>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter Property="Opacity" Value="0.55" />
-                                    <Setter Property="Cursor" Value="Arrow" />
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
+            <Style x:Key="ConfiguredContent" TargetType="StackPanel">
+                <Setter Property="Visibility" Value="Collapsed" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding HasConfiguredFolder}" Value="True">
+                        <Setter Property="Visibility" Value="Visible" />
+                    </DataTrigger>
+                </Style.Triggers>
             </Style>
-            <Style x:Key="OverviewTitle" TargetType="TextBlock" BasedOn="{StaticResource PageTitleText}">
-                <Setter Property="Margin" Value="0,0,0,23" />
+            <Style x:Key="WelcomeContent" TargetType="StackPanel">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding HasConfiguredFolder}" Value="True">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+            <Style x:Key="RuntimeIndicator" TargetType="Ellipse">
+                <Setter Property="Width" Value="8" />
+                <Setter Property="Height" Value="8" />
+                <Setter Property="Fill" Value="{StaticResource SubtleBrush}" />
+                <Setter Property="Margin" Value="0,12,10,0" />
+                <Setter Property="VerticalAlignment" Value="Top" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                        <Setter Property="Fill" Value="{StaticResource SuccessBrush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding IsStatusWarning}" Value="True">
+                        <Setter Property="Fill" Value="{StaticResource WarningBrush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding IsCheckingStatus}" Value="True">
+                        <Setter Property="Fill" Value="{StaticResource AccentBrush}" />
+                    </DataTrigger>
+                </Style.Triggers>
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.96*" />
-            <ColumnDefinition Width="1.04*" />
+            <ColumnDefinition Width="1.05*" />
+            <ColumnDefinition Width="1*" />
         </Grid.ColumnDefinitions>
 
-        <Border Background="{StaticResource SurfaceQuietBrush}" BorderBrush="{StaticResource SubtleBorderBrush}" BorderThickness="0,0,1,0">
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <StackPanel Margin="26,24,26,26" MaxWidth="570">
-                    <TextBlock Text="{DynamicResource Home.Title}" Style="{StaticResource OverviewTitle}"
-                               AutomationProperties.HeadingLevel="Level1" />
-
-                    <TextBlock Text="{DynamicResource Home.Profiles}" Style="{StaticResource SectionTitleText}"
-                               AutomationProperties.HeadingLevel="Level2" Margin="0,0,0,10" />
-                    <Border Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}"
-                            BorderThickness="1" CornerRadius="8" Padding="3">
-                        <StackPanel>
-                            <Button Style="{StaticResource OverviewLink}" Command="{Binding OpenCatalogCommand}"
-                                    AutomationProperties.Name="{DynamicResource Home.GoToCatalog}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="36" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="15" />
-                                    </Grid.ColumnDefinitions>
-                                    <Image Source="{DynamicResource Icon.Catalog}" Width="20" Height="20" HorizontalAlignment="Left"
-                                           VerticalAlignment="Center" IsHitTestVisible="False" />
-                                    <StackPanel Grid.Column="1" Margin="0,0,12,0" VerticalAlignment="Center">
-                                        <TextBlock Text="{DynamicResource Shell.Catalog}" Style="{StaticResource WorkspaceRowTitle}" />
-                                        <TextBlock Text="{DynamicResource Home.CatalogHint}" Style="{StaticResource WorkspaceRowDetail}" />
-                                    </StackPanel>
-                                    <Image Grid.Column="2" Source="{DynamicResource Icon.Chevron}" Width="13" Height="13"
-                                           Opacity="0.65" IsHitTestVisible="False" />
-                                </Grid>
+        <Border Background="{StaticResource SurfaceQuietBrush}" BorderBrush="{StaticResource SubtleBorderBrush}"
+                BorderThickness="0,0,1,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          PanningMode="VerticalOnly">
+                <StackPanel Margin="28,26,28,28" MaxWidth="570">
+                    <StackPanel Style="{StaticResource WelcomeContent}">
+                        <TextBlock AutomationProperties.HeadingLevel="Level1" TextWrapping="Wrap">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource PageTitleText}">
+                                    <Setter Property="Text" Value="{DynamicResource Home.WelcomeTitle}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasProfiles}" Value="True">
+                                            <Setter Property="Text" Value="{DynamicResource Home.ReturningTitle}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Margin="0,13,0,0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
+                                    <Setter Property="Text" Value="{DynamicResource Home.ExampleNote}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasProfiles}" Value="True">
+                                            <Setter Property="Text" Value="{DynamicResource Home.ReturningNote}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <WrapPanel Margin="0,23,0,0">
+                            <Button Margin="0,0,7,7">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                        <Setter Property="Content" Value="{DynamicResource Home.TryExample}" />
+                                        <Setter Property="Command" Value="{Binding OpenCatalogCommand}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasProfiles}" Value="True">
+                                                <Setter Property="Content" Value="{DynamicResource Home.Library}" />
+                                                <Setter Property="Command" Value="{Binding OpenLibraryCommand}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
                             </Button>
-                            <Border Background="{StaticResource SubtleBorderBrush}" Height="1" Margin="13,0" />
-                            <Button Style="{StaticResource OverviewLink}" Command="{Binding OpenLibraryCommand}"
-                                    AutomationProperties.Name="{DynamicResource Home.GoToLibrary}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="36" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="15" />
-                                    </Grid.ColumnDefinitions>
-                                    <Image Source="{DynamicResource Icon.Library}" Width="20" Height="20" HorizontalAlignment="Left"
-                                           VerticalAlignment="Center" IsHitTestVisible="False" />
-                                    <StackPanel Grid.Column="1" Margin="0,0,12,0" VerticalAlignment="Center">
-                                        <TextBlock Text="{DynamicResource Home.Library}" Style="{StaticResource WorkspaceRowTitle}" />
-                                        <TextBlock Text="{DynamicResource Home.LibraryEmpty}">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock" BasedOn="{StaticResource WorkspaceRowDetail}">
+                            <Button Content="{DynamicResource Home.CreateProfile}" Command="{Binding CreateProfileCommand}"
+                                    Style="{StaticResource SecondaryButton}" Margin="0,0,0,7" />
+                        </WrapPanel>
+                        <Button Content="{DynamicResource Home.TryExample}" Command="{Binding OpenCatalogCommand}"
+                                HorizontalAlignment="Left" Margin="0,5,0,0">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource GhostButton}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasProfiles}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+
+                    <StackPanel Style="{StaticResource ConfiguredContent}">
+                        <TextBlock Text="{DynamicResource Home.Title}" Style="{StaticResource PageTitleText}"
+                                   AutomationProperties.HeadingLevel="Level1" Margin="0,0,0,24" />
+                        <TextBlock Text="{DynamicResource Home.Integration}" Style="{StaticResource SectionTitleText}"
+                                   AutomationProperties.HeadingLevel="Level2" />
+                        <TextBlock Text="{Binding IntegrationTitle}" Style="{StaticResource WorkspaceRowDetail}" Margin="0,11,0,0" />
+                        <TextBlock Text="{Binding FolderDisplay}" ToolTip="{Binding FolderDisplay}" TextTrimming="CharacterEllipsis"
+                                   Style="{StaticResource CaptionText}" Margin="0,6,0,0" />
+                        <WrapPanel Margin="0,15,0,0">
+                            <Button Content="{DynamicResource Home.ChangeFolder}" Command="{Binding ChooseFolderCommand}"
+                                    Style="{StaticResource SecondaryButton}" Margin="0,0,6,6" />
+                            <Button Content="{DynamicResource Home.IntegrationSettings}" Command="{Binding OpenSettingsCommand}"
+                                    Style="{StaticResource GhostButton}" Margin="0,0,0,6" />
+                        </WrapPanel>
+                        <Border BorderBrush="{StaticResource SubtleBorderBrush}" BorderThickness="0,1,0,0"
+                                Margin="0,21,0,0" Padding="0,20,0,0">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource Home.Library}" Style="{StaticResource SectionTitleText}"
+                                           AutomationProperties.HeadingLevel="Level2" />
+                                <TextBlock Text="{DynamicResource Home.LibraryEmpty}" Margin="0,10,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasProfiles}" Value="True">
                                                     <Setter Property="Visibility" Value="Collapsed" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding InstalledCount}" Value="0">
-                                                            <Setter Property="Visibility" Value="Visible" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                        <WrapPanel Margin="0,4,0,0">
-                                            <WrapPanel.Style>
-                                                <Style TargetType="WrapPanel">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding InstalledCount}" Value="0">
-                                                            <Setter Property="Visibility" Value="Collapsed" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </WrapPanel.Style>
-                                            <TextBlock Style="{StaticResource CaptionText}" Margin="0,0,12,0">
-                                                <Run Text="{DynamicResource Home.Installed}" /><Run Text="&#xA0;" />
-                                                <Run Text="{Binding InstalledCount, Mode=OneWay}" />
-                                            </TextBlock>
-                                            <TextBlock Style="{StaticResource CaptionText}">
-                                                <Run Text="{DynamicResource Home.Enabled}" /><Run Text="&#xA0;" />
-                                                <Run Text="{Binding EnabledCount, Mode=OneWay}" />
-                                            </TextBlock>
-                                        </WrapPanel>
-                                    </StackPanel>
-                                    <Image Grid.Column="2" Source="{DynamicResource Icon.Chevron}" Width="13" Height="13"
-                                           Opacity="0.65" IsHitTestVisible="False" />
-                                </Grid>
-                            </Button>
-                        </StackPanel>
-                    </Border>
-
-                    <TextBlock Text="{DynamicResource Home.Integration}" Style="{StaticResource SectionTitleText}"
-                               AutomationProperties.HeadingLevel="Level2" Margin="0,25,0,10" />
-                    <Grid Margin="0,1,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="37" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Image Source="{DynamicResource Icon.Folder}" Width="20" Height="20" Margin="2,4,0,0"
-                               HorizontalAlignment="Left" VerticalAlignment="Top" IsHitTestVisible="False" />
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Text="{DynamicResource Home.IntegrationDetails}" Style="{StaticResource WorkspaceRowTitle}" />
-                            <TextBlock Text="{Binding IntegrationDetail}" Style="{StaticResource WorkspaceRowDetail}" />
-                        </StackPanel>
-                    </Grid>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <ItemsControl ItemsSource="{Binding RecentProfileTitles}" Margin="0,8,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" Style="{StaticResource BodyText}"
+                                                       TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"
+                                                       Margin="0,2,0,0" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <WrapPanel Margin="0,15,0,0">
+                                    <Button Content="{DynamicResource Home.GoToLibrary}" Command="{Binding OpenLibraryCommand}"
+                                            Style="{StaticResource SecondaryButton}" Margin="0,0,6,6" />
+                                    <Button Content="{DynamicResource Home.GoToCatalog}" Command="{Binding OpenCatalogCommand}"
+                                            Style="{StaticResource GhostButton}" Margin="0,0,0,6" />
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                 </StackPanel>
             </ScrollViewer>
         </Border>
 
         <Border Grid.Column="1" Background="{DynamicResource WorkspaceBrush}">
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <Grid Margin="27,24,27,20">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <DockPanel LastChildFill="True">
-                        <TextBlock DockPanel.Dock="Left" Text="{DynamicResource Home.Strategy}"
-                                   Style="{StaticResource WorkspaceRowTitle}" VerticalAlignment="Center" Margin="0,0,14,0" />
-                        <ContentControl Content="{Binding}" ContentTemplate="{StaticResource StrategyPickerTemplate}"
-                                        HorizontalContentAlignment="Stretch" VerticalAlignment="Center" />
-                    </DockPanel>
-
-                    <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="0,15,0,17">
-                        <Grid Width="148" Height="148" HorizontalAlignment="Center" IsHitTestVisible="False">
-                            <Ellipse Stroke="#2EC9AEFC" StrokeThickness="1" />
-                            <Ellipse Width="130" Height="130" Stroke="#3BBCA5EC" StrokeThickness="1" />
-                            <Ellipse Width="111" Height="111" Stroke="#5BBDA6EF" StrokeThickness="1.4">
-                                <Ellipse.Fill>
-                                    <RadialGradientBrush Center="0.30,0.18" GradientOrigin="0.29,0.17" RadiusX="0.91" RadiusY="0.93">
-                                        <GradientStop Color="#483658" Offset="0" />
-                                        <GradientStop Color="#322641" Offset="0.56" />
-                                        <GradientStop Color="#231C31" Offset="1" />
-                                    </RadialGradientBrush>
-                                </Ellipse.Fill>
-                            </Ellipse>
-                            <Canvas Width="44" Height="44" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Path Data="M 7,15 L 7,12 C 7,10.3 8.3,9 10,9 L 18,9 L 22,13 L 33,13 C 35.2,13 37,14.8 37,17 L 37,32 C 37,34.2 35.2,36 33,36 L 11,36 C 8.8,36 7,34.2 7,32 Z M 7,18 L 37,18"
-                                      Stroke="{StaticResource AccentSoftBrush}" StrokeThickness="2.2"
-                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" />
-                                <Path Data="M 16,26 L 20,30 L 28,22" Stroke="{StaticResource SuccessBrush}" StrokeThickness="2.3"
-                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round">
-                                    <Path.Style>
-                                        <Style TargetType="Path">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding HasConnectedInstallation}" Value="True">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Path.Style>
-                                </Path>
-                            </Canvas>
-                        </Grid>
-                        <TextBlock Text="{Binding IntegrationTitle}" Style="{StaticResource PageTitleText}" FontSize="23"
-                                   TextAlignment="Center" TextWrapping="Wrap" Margin="0,10,0,13"
-                                   AutomationProperties.LiveSetting="Polite" />
-                        <WrapPanel HorizontalAlignment="Center">
-                            <Button MinHeight="36" MinWidth="162">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-                                        <Setter Property="Content" Value="{DynamicResource Home.ConnectFolder}" />
-                                        <Setter Property="Command" Value="{Binding ChooseFolderCommand}" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasConnectedInstallation}" Value="True">
-                                                <Setter Property="Content" Value="{DynamicResource Home.IntegrationSettings}" />
-                                                <Setter Property="Command" Value="{Binding OpenSettingsCommand}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-                            <Button MinHeight="36" Margin="6,0,0,0" Content="{DynamicResource Home.ChangeFolder}"
-                                    Command="{Binding ChooseFolderCommand}">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource GhostButton}">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasConnectedInstallation}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-                        </WrapPanel>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          PanningMode="VerticalOnly">
+                <StackPanel Margin="28,26,28,28" MaxWidth="560">
+                    <StackPanel Style="{StaticResource WelcomeContent}">
+                        <TextBlock Text="{DynamicResource Home.SetupTitle}" Style="{StaticResource SectionTitleText}"
+                                   AutomationProperties.HeadingLevel="Level2" />
+                        <TextBlock Text="{DynamicResource Home.SetupNote}" Style="{StaticResource BodyText}" Margin="0,13,0,0" />
+                        <Button Content="{DynamicResource Home.ConnectFolder}" Command="{Binding ChooseFolderCommand}"
+                                Style="{StaticResource SecondaryButton}" HorizontalAlignment="Left" Margin="0,20,0,0" />
                     </StackPanel>
 
-                    <Border Grid.Row="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,11,0,0">
-                        <StackPanel>
-                            <DockPanel LastChildFill="True">
-                                <TextBlock DockPanel.Dock="Left" Text="{DynamicResource Home.Runtime}"
-                                           Style="{StaticResource WorkspaceRowTitle}" Margin="0,0,10,0" />
-                                <TextBlock Text="{Binding StatusText}" Style="{StaticResource CaptionText}"
-                                           VerticalAlignment="Center" TextAlignment="Right" TextTrimming="CharacterEllipsis" />
-                            </DockPanel>
-                            <TextBlock Text="{Binding StatusDetail}" Style="{StaticResource WorkspaceRowDetail}" />
-                        </StackPanel>
-                    </Border>
-                </Grid>
+                    <StackPanel Style="{StaticResource ConfiguredContent}">
+                        <TextBlock Text="{DynamicResource Home.Runtime}" Style="{StaticResource SectionTitleText}"
+                                   AutomationProperties.HeadingLevel="Level2" Margin="0,0,0,16" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Ellipse Style="{StaticResource RuntimeIndicator}" />
+                            <TextBlock Grid.Column="1" Text="{Binding StatusText}" Foreground="{StaticResource TextBrush}"
+                                       AutomationProperties.LiveSetting="Polite" FontFamily="{StaticResource DisplayFont}"
+                                       FontSize="28" FontWeight="Bold" LineHeight="35" TextWrapping="Wrap" />
+                        </Grid>
+                        <TextBlock Text="{Binding StatusDetail}" Style="{StaticResource BodyText}" Margin="18,8,0,0" />
+                        <Button Command="{Binding RefreshStatusCommand}" MinWidth="115"
+                                HorizontalAlignment="Left" Margin="18,14,0,0">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                    <Setter Property="Content" Value="{DynamicResource Home.RefreshStatus}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCheckingStatus}" Value="True">
+                                            <Setter Property="Content" Value="{DynamicResource Home.CheckingStatus}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <TextBlock Text="{Binding StatusCheckedAt}" Style="{StaticResource CaptionText}" Margin="18,6,0,0" />
+
+                        <Border BorderBrush="{StaticResource SubtleBorderBrush}" BorderThickness="0,1,0,0"
+                                Margin="0,20,0,0" Padding="0,16,0,0">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource Home.Strategy}" Style="{StaticResource WorkspaceRowTitle}"
+                                           AutomationProperties.HeadingLevel="Level2" />
+                                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource StrategyPickerTemplate}"
+                                                HorizontalContentAlignment="Stretch" Margin="0,9,0,0" />
+                                <TextBlock Text="{DynamicResource Home.StrategyNote}" Style="{StaticResource CaptionText}"
+                                           TextWrapping="Wrap" Margin="0,6,0,0" />
+                                <Button Content="{DynamicResource Home.PreviewChanges}" Command="{Binding OpenPreviewCommand}"
+                                        IsEnabled="{Binding HasConnectedInstallation}" Style="{StaticResource SecondaryButton}"
+                                        HorizontalAlignment="Left" Margin="0,14,0,0" />
+                                <TextBlock Text="{DynamicResource Home.PreviewNote}" Style="{StaticResource CaptionText}"
+                                           TextWrapping="Wrap" Margin="0,8,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
             </ScrollViewer>
         </Border>
     </Grid>

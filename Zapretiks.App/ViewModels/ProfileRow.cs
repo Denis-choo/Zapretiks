@@ -5,6 +5,7 @@ namespace Zapretiks.App.ViewModels;
 internal sealed record ProfileRow(SolutionProfile Profile, bool IsInstalled, bool IsEnabled = false)
 {
     public string Id => Profile.Id;
+    public bool SharesLocalId { get; init; }
     public string Title => Profile.Name;
     public string Description => Profile.Description;
     public string Author => Profile.Author;
@@ -13,31 +14,33 @@ internal sealed record ProfileRow(SolutionProfile Profile, bool IsInstalled, boo
     public string SourceLabel => Profile.Source;
     public bool IsDemo => Profile.IsDemo;
     public string VerificationLabel => IsDemo ? "Демо" : Profile.IsVerified ? "Проверено" : "Без проверки";
+    public string ExampleExplanation => "Учебный профиль. Его адреса исключены из расчёта.";
+    public bool HasCompatibilityNotes => !IsDemo && !string.IsNullOrWhiteSpace(Profile.CompatibilityNotes);
     public string UpdatedLabel => Profile.UpdatedAt.ToString("d MMMM yyyy");
-    public string InstallLabel => IsInstalled ? "Убрать" : "Добавить";
-    public string ToggleLabel => IsEnabled ? "Выключить" : "Включить";
-    public string StateLabel => IsEnabled ? "Включён для подготовки" : "В библиотеке";
-    public string CompatibilityLabel => string.IsNullOrWhiteSpace(Profile.CompatibilityNotes)
-        ? "Дополнительные условия не указаны."
-        : Profile.CompatibilityNotes;
-
-    public string DetailsText
+    public string FirstAddress => Profile.IncludeDomains.FirstOrDefault() ?? Profile.IncludeNetworks.FirstOrDefault()
+        ?? Profile.ExcludeDomains.FirstOrDefault() ?? Profile.ExcludeNetworks.FirstOrDefault() ?? Description;
+    public string ToggleLabel => IsEnabled ? "Исключить из расчёта" : "Включить в расчёт";
+    public string StateLabel => IsDemo
+        ? "Демонстрационный профиль"
+        : IsEnabled ? "Учитывается в расчёте" : "Не участвует в расчёте";
+    public IReadOnlyList<ProfileEntryGroup> EntryGroups
     {
         get
         {
             var sections = new[]
             {
-                FormatList("Домены", Profile.IncludeDomains),
-                FormatList("Исключения доменов", Profile.ExcludeDomains),
-                FormatList("IP и подсети", Profile.IncludeNetworks),
-                FormatList("Исключения IP", Profile.ExcludeNetworks),
-                FormatList("Совместимые стратегии", Profile.CompatibleStrategies)
+                new ProfileEntryGroup("Домены", Profile.IncludeDomains),
+                new ProfileEntryGroup("Исключения доменов", Profile.ExcludeDomains),
+                new ProfileEntryGroup("IP и подсети", Profile.IncludeNetworks),
+                new ProfileEntryGroup("Исключения IP", Profile.ExcludeNetworks),
+                new ProfileEntryGroup("Совместимые стратегии", Profile.CompatibleStrategies)
             };
-            var details = string.Join(Environment.NewLine + Environment.NewLine, sections.OfType<string>());
-            return details.Length > 0 ? details : "В профиле нет записей.";
+            return sections.Where(section => section.Values.Length > 0).ToArray();
         }
     }
+}
 
-    private static string? FormatList(string title, string[] values) =>
-        values.Length == 0 ? null : $"{title}{Environment.NewLine}{string.Join(", ", values)}";
+internal sealed record ProfileEntryGroup(string Label, string[] Values)
+{
+    public string Lines => string.Join(Environment.NewLine, Values);
 }

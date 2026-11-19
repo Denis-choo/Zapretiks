@@ -1,0 +1,198 @@
+<UserControl x:Class="Zapretiks.App.Views.ProfileEditorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             IsVisibleChanged="OnEditorVisibilityChanged">
+    <UserControl.InputBindings>
+        <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveEditorCommand}" />
+        <KeyBinding Key="Escape" Command="{Binding CancelEditorCommand}" />
+    </UserControl.InputBindings>
+    <UserControl.Resources>
+        <Style x:Key="EditorLabel" TargetType="Label">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+        </Style>
+        <Style x:Key="EditorField" TargetType="StackPanel">
+            <Setter Property="Margin" Value="0,0,0,17" />
+        </Style>
+        <Style x:Key="EditorListInput" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="FontFamily" Value="Cascadia Mono, Consolas" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="AcceptsReturn" Value="True" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+            <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
+            <Setter Property="VerticalContentAlignment" Value="Top" />
+            <Setter Property="MinHeight" Value="86" />
+            <Setter Property="MaxHeight" Value="146" />
+            <Setter Property="MaxLength" Value="131072" />
+        </Style>
+        <Style x:Key="EditorExpander" TargetType="Expander">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <StackPanel>
+                            <ToggleButton x:Name="ExpandButton"
+                                          IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                          HorizontalContentAlignment="Stretch" Cursor="Hand"
+                                          Foreground="{DynamicResource TextBrush}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="HeaderSurface" Padding="0,10" Background="Transparent"
+                                                BorderBrush="Transparent" BorderThickness="1" CornerRadius="6">
+                                            <DockPanel LastChildFill="True">
+                                                <TextBlock x:Name="Arrow" DockPanel.Dock="Left" Style="{DynamicResource FluentIcon}"
+                                                           Text="{DynamicResource Glyph.Chevron}" FontSize="12" Margin="0,0,8,0"
+                                                           RenderTransformOrigin="0.5,0.5" />
+                                                <ContentPresenter Content="{Binding Header, RelativeSource={RelativeSource AncestorType=Expander}}"
+                                                                  TextElement.Foreground="{TemplateBinding Foreground}" />
+                                            </DockPanel>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="Arrow" Property="RenderTransform">
+                                                    <Setter.Value><RotateTransform Angle="90" /></Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="HeaderSurface" Property="Background" Value="{DynamicResource HoverBrush}" />
+                                            </Trigger>
+                                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                                <Setter TargetName="HeaderSurface" Property="BorderBrush" Value="{DynamicResource FocusBrush}" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter x:Name="ExpandedContent" Visibility="Collapsed" Margin="0,10,0,0" />
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter TargetName="ExpandedContent" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid Margin="30,28,28,22" MaxWidth="600" HorizontalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel Margin="0,0,0,17">
+            <TextBlock Text="{Binding Editor.Title}" Style="{DynamicResource PageTitleText}" TextWrapping="Wrap"
+                       AutomationProperties.HeadingLevel="Level2" />
+            <Border Background="{DynamicResource ErrorSurfaceBrush}" CornerRadius="8" Padding="12,10" Margin="0,12,0,0">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding EditorError}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding EditorError}" Value="">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <TextBlock Text="{Binding EditorError}" Foreground="{DynamicResource ErrorBrush}" TextWrapping="Wrap"
+                           FontSize="14" AutomationProperties.LiveSetting="Assertive" />
+            </Border>
+        </StackPanel>
+        <ScrollViewer x:Name="EditorScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+            <StackPanel Margin="0,0,9,0" IsEnabled="{Binding IsEditorEnabled}">
+                <StackPanel Style="{StaticResource EditorField}">
+                    <Label Content="{DynamicResource Library.EditorName}" Target="{Binding ElementName=NameField}" Style="{StaticResource EditorLabel}" />
+                    <TextBox x:Name="NameField" Text="{Binding Editor.Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="100"
+                             AutomationProperties.Name="{DynamicResource Library.EditorName}" />
+                </StackPanel>
+                <StackPanel Style="{StaticResource EditorField}">
+                    <Label Content="{DynamicResource Library.EditorDomains}" Target="{Binding ElementName=DomainsField}" Style="{StaticResource EditorLabel}" />
+                    <TextBox x:Name="DomainsField" Text="{Binding Editor.IncludeDomainsText, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource EditorListInput}" AutomationProperties.Name="{DynamicResource Library.EditorDomains}" />
+                    <TextBlock Text="{DynamicResource Library.EditorListHint}" Style="{DynamicResource BodyText}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                    <TextBlock Text="{DynamicResource Library.EditorUrlHint}" Style="{DynamicResource CaptionText}" TextWrapping="Wrap" Margin="0,6,0,0" />
+                </StackPanel>
+                <Expander Header="{DynamicResource Library.EditorAdvanced}" Style="{StaticResource EditorExpander}" IsExpanded="False" Margin="0,0,0,16">
+                    <StackPanel>
+                        <StackPanel Style="{StaticResource EditorField}">
+                            <Label Content="{DynamicResource Library.EditorDescription}" Target="{Binding ElementName=DescriptionField}" Style="{StaticResource EditorLabel}" />
+                            <TextBox x:Name="DescriptionField" Text="{Binding Editor.Description, UpdateSourceTrigger=PropertyChanged}"
+                                     AcceptsReturn="True" Height="78" MaxLength="2000" TextWrapping="Wrap" VerticalContentAlignment="Top"
+                                     VerticalScrollBarVisibility="Auto" AutomationProperties.Name="{DynamicResource Library.EditorDescription}" />
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource EditorField}">
+                            <Label Content="{DynamicResource Library.EditorCategory}" Target="{Binding ElementName=CategoryField}" Style="{StaticResource EditorLabel}" />
+                            <ComboBox x:Name="CategoryField" ItemsSource="{Binding Editor.Categories}"
+                                      SelectedItem="{Binding Editor.CategoryLabel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      AutomationProperties.Name="{DynamicResource Library.EditorCategory}" />
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource EditorField}">
+                            <Label Content="{DynamicResource Library.EditorExcludedDomains}" Target="{Binding ElementName=ExcludedDomainsField}" Style="{StaticResource EditorLabel}" />
+                            <TextBox x:Name="ExcludedDomainsField" Text="{Binding Editor.ExcludeDomainsText, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource EditorListInput}" AutomationProperties.Name="{DynamicResource Library.EditorExcludedDomains}" />
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource EditorField}">
+                            <Label Content="{DynamicResource Library.EditorNetworks}" Target="{Binding ElementName=NetworksField}" Style="{StaticResource EditorLabel}" />
+                            <TextBox x:Name="NetworksField" Text="{Binding Editor.IncludeNetworksText, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource EditorListInput}" AutomationProperties.Name="{DynamicResource Library.EditorNetworks}" />
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource EditorField}">
+                            <Label Content="{DynamicResource Library.EditorExcludedNetworks}" Target="{Binding ElementName=ExcludedNetworksField}" Style="{StaticResource EditorLabel}" />
+                            <TextBox x:Name="ExcludedNetworksField" Text="{Binding Editor.ExcludeNetworksText, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource EditorListInput}" AutomationProperties.Name="{DynamicResource Library.EditorExcludedNetworks}" />
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource EditorField}">
+                            <Label Content="{DynamicResource Library.EditorStrategies}" Target="{Binding ElementName=StrategiesField}" Style="{StaticResource EditorLabel}" />
+                            <TextBox x:Name="StrategiesField" Text="{Binding Editor.CompatibleStrategiesText, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource EditorListInput}" AutomationProperties.Name="{DynamicResource Library.EditorStrategies}" />
+                            <TextBlock Text="{DynamicResource Library.EditorStrategiesHint}" Style="{DynamicResource CaptionText}"
+                                       TextWrapping="Wrap" Margin="0,6,0,0" />
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource EditorField}">
+                            <Label Content="{DynamicResource Library.EditorCompatibility}" Target="{Binding ElementName=CompatibilityField}" Style="{StaticResource EditorLabel}" />
+                            <TextBox x:Name="CompatibilityField" Text="{Binding Editor.CompatibilityNotes, UpdateSourceTrigger=PropertyChanged}"
+                                     AcceptsReturn="True" Height="78" MaxLength="1500" TextWrapping="Wrap" VerticalContentAlignment="Top"
+                                     VerticalScrollBarVisibility="Auto" AutomationProperties.Name="{DynamicResource Library.EditorCompatibility}" />
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource EditorField}">
+                            <Label Content="{DynamicResource Library.EditorAuthor}" Target="{Binding ElementName=AuthorField}" Style="{StaticResource EditorLabel}" />
+                            <TextBox x:Name="AuthorField" Text="{Binding Editor.Author, UpdateSourceTrigger=PropertyChanged}" MaxLength="100"
+                                     AutomationProperties.Name="{DynamicResource Library.EditorAuthor}" />
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource EditorField}">
+                            <Label Content="{DynamicResource Library.EditorVersion}" Target="{Binding ElementName=VersionField}" Style="{StaticResource EditorLabel}" />
+                            <TextBox x:Name="VersionField" Text="{Binding Editor.Version, UpdateSourceTrigger=PropertyChanged}" MaxLength="40"
+                                     AutomationProperties.Name="{DynamicResource Library.EditorVersion}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Expander>
+            </StackPanel>
+        </ScrollViewer>
+        <Border Grid.Row="2" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0" Padding="0,15,0,0" Margin="0,13,0,0">
+            <DockPanel LastChildFill="False">
+                <Button Content="{DynamicResource Library.EditorCancel}" Command="{Binding CancelEditorCommand}"
+                        Style="{DynamicResource SecondaryButton}" MinWidth="80" DockPanel.Dock="Left" />
+                <Button Command="{Binding SaveEditorCommand}" MinWidth="112" DockPanel.Dock="Right">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                            <Setter Property="Content" Value="{DynamicResource Library.EditorSave}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsSaving}" Value="True">
+                                    <Setter Property="Content" Value="{DynamicResource Library.EditorSaving}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>

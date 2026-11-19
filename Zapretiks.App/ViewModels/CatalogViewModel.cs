@@ -5,7 +5,7 @@ namespace Zapretiks.App.ViewModels;
 
 internal sealed class CatalogViewModel : ViewModel
 {
-    private const string AllCategories = "Все категории";
+    private const string AllCategories = "Все";
     private const string AllSources = "Все публикации";
     private const string Verified = "Проверенные";
     private const string Community = "Сообщество";
@@ -19,25 +19,39 @@ internal sealed class CatalogViewModel : ViewModel
     private string selectedCategory = AllCategories;
     private string selectedSource = AllSources;
     private string? statusMessage;
+    private IReadOnlyList<string> sources = [AllSources];
 
-    public CatalogViewModel(Session session, ICatalogService catalog)
+    public CatalogViewModel(Session session, ICatalogService catalog, Action<string> openInLibrary)
     {
         this.session = session;
         this.catalog = catalog;
         ResetFiltersCommand = session.Action(ResetFilters);
         InstallCommand = session.Command(ToggleInstallationAsync,
-            parameter => session.CanSave && (parameter is ProfileRow || SelectedItem is not null));
+            parameter => session.CanSave && (parameter as ProfileRow ?? SelectedItem) is { SharesLocalId: false });
+        OpenInLibraryCommand = session.Action(() =>
+        {
+            if (SelectedItem is { IsInstalled: true } row)
+                openInLibrary(row.Id);
+        });
         session.Changed += Refresh;
     }
 
     public IReadOnlyList<string> Categories { get; } = [AllCategories, "Игры", "Сервисы"];
-    public IReadOnlyList<string> Sources { get; } = [AllSources, Verified, Community, Demo];
+    public IReadOnlyList<string> Sources => sources;
+    public bool HasSourceFilter => Sources.Count > 2;
+    public bool HasOnlyExamples => profiles.Count > 0 && profiles.All(profile => profile.IsDemo);
     public IReadOnlyList<ProfileRow> Items => items;
     public bool HasItems => Items.Count > 0;
-    public ProfileRow? SelectedItem { get => selectedItem; set => Set(ref selectedItem, value); }
+    public bool HasFilters => SearchText.Length > 0 || SelectedCategory != AllCategories || SelectedSource != AllSources;
+    public ProfileRow? SelectedItem
+    {
+        get => selectedItem;
+        set { if (Set(ref selectedItem, value)) StatusMessage = null; }
+    }
     public string? StatusMessage { get => statusMessage; private set => Set(ref statusMessage, value); }
     public ICommand ResetFiltersCommand { get; }
     public ICommand InstallCommand { get; }
+    public ICommand OpenInLibraryCommand { get; }
 
     public string SearchText
     {
@@ -62,6 +76,7 @@ internal sealed class CatalogViewModel : ViewModel
         try
         {
             profiles = await catalog.LoadAsync();
+            UpdateSources();
             Refresh();
         }
         catch (Exception error)
@@ -80,9 +95,11 @@ internal sealed class CatalogViewModel : ViewModel
         await session.UpdateAsync(state =>
         {
             var current = state.Profiles.FirstOrDefault(item => SameId(row, item.Profile));
+            if (current is not null && (!row.IsInstalled || current.Profile.Source != row.Profile.Source))
+                throw new InvalidOperationException("Профиль с этим идентификатором уже есть в библиотеке.");
             return state with
             {
-                Profiles = current is not null
+                Profiles = row.IsInstalled
                     ? state.Profiles.Where(item => !SameId(row, item.Profile)).ToArray()
                     : [.. state.Profiles, new InstalledProfile(row.Profile, IsEnabled: false)]
             };
@@ -95,16 +112,48 @@ internal sealed class CatalogViewModel : ViewModel
         var previousId = SelectedItem?.Id;
         var installed = session.State.Profiles.ToDictionary(item => item.Profile.Id, StringComparer.OrdinalIgnoreCase);
         var query = SearchText.Trim();
-        var rows = profiles.Select(profile => new ProfileRow(profile,
-            installed.ContainsKey(profile.Id), installed.GetValueOrDefault(profile.Id)?.IsEnabled == true)).ToArray();
+        var rows = profiles.Select(profile =>
+        {
+            installed.TryGetValue(profile.Id, out var saved);
+            return new ProfileRow(profile, saved is not null, saved?.IsEnabled == true)
+            {
+                SharesLocalId = saved is not null && saved.Profile.Source != profile.Source
+            };
+        });
         items = rows.Where(row => (SelectedCategory == AllCategories || row.CategoryLabel == SelectedCategory)
             && MatchesSource(row)
-            && (row.Title.Contains(query, StringComparison.CurrentCultureIgnoreCase)
-                || row.Description.Contains(query, StringComparison.CurrentCultureIgnoreCase))).ToArray();
+            && MatchesQuery(row.Profile, query)).ToArray();
         Raise(nameof(Items));
         Raise(nameof(HasItems));
+        Raise(nameof(HasFilters));
         selectedItem = items.FirstOrDefault(row => row.Id == previousId) ?? items.FirstOrDefault();
         Raise(nameof(SelectedItem));
+    }
+
+    private static bool MatchesQuery(SolutionProfile profile, string query) =>
+        query.Length == 0 ||
+        profile.Name.Contains(query, StringComparison.CurrentCultureIgnoreCase) ||
+        profile.Description.Contains(query, StringComparison.CurrentCultureIgnoreCase) ||
+        profile.IncludeDomains.Concat(profile.ExcludeDomains).Concat(profile.IncludeNetworks).Concat(profile.ExcludeNetworks)
+            .Any(address => address.Contains(query, StringComparison.OrdinalIgnoreCase));
+
+    private void UpdateSources()
+    {
+        var available = new List<string> { AllSources };
+        if (profiles.Any(profile => profile.IsVerified && !profile.IsDemo))
+            available.Add(Verified);
+        if (profiles.Any(profile => !profile.IsVerified && !profile.IsDemo))
+            available.Add(Community);
+        if (profiles.Any(profile => profile.IsDemo))
+            available.Add(Demo);
+        sources = available;
+        if (!sources.Contains(selectedSource))
+            selectedSource = AllSources;
+
+        Raise(nameof(Sources));
+        Raise(nameof(SelectedSource));
+        Raise(nameof(HasSourceFilter));
+        Raise(nameof(HasOnlyExamples));
     }
 
     private bool MatchesSource(ProfileRow row) => SelectedSource switch

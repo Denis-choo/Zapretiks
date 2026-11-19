@@ -1,88 +1,13 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Style x:Key="PageContent" TargetType="StackPanel">
-        <Setter Property="MaxWidth" Value="1136" />
-        <Setter Property="Margin" Value="32,26,32,32" />
-    </Style>
     <Style x:Key="PageMetadata" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="14" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
     </Style>
-    <Style x:Key="PageGlyph" TargetType="Image">
-        <Setter Property="Width" Value="14" />
-        <Setter Property="Height" Value="14" />
-        <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="IsHitTestVisible" Value="False" />
-    </Style>
-    <Style x:Key="PageCommand" TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
-        <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="HorizontalAlignment" Value="Left" />
-    </Style>
-    <Style x:Key="PageRowLink" TargetType="Button" BasedOn="{StaticResource GhostButton}">
-        <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
-        <Setter Property="FontWeight" Value="Normal" />
-        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-        <Setter Property="Padding" Value="0,4,12,4" />
-        <Setter Property="Margin" Value="0,0,8,0" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Outline" BorderBrush="Transparent" BorderThickness="1" Background="Transparent"
-                            Padding="{TemplateBinding Padding}" CornerRadius="3">
-                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                          TextElement.Foreground="{TemplateBinding Foreground}" />
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
-                        </Trigger>
-                        <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Outline" Property="BorderBrush" Value="{DynamicResource FocusBrush}" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-    <Style x:Key="CollectionPanel" TargetType="Border">
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Background" Value="{DynamicResource SurfaceQuietBrush}" />
-        <Setter Property="SnapsToDevicePixels" Value="True" />
-    </Style>
-    <Style x:Key="CollectionHeader" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
-        <Setter Property="BorderThickness" Value="0,0,0,1" />
-        <Setter Property="Padding" Value="13,0,12,0" />
-        <Setter Property="MinHeight" Value="34" />
-    </Style>
-    <Style x:Key="CollectionRow" TargetType="Border">
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}" />
-        <Setter Property="BorderThickness" Value="0,0,0,1" />
-        <Setter Property="Padding" Value="12,3,12,3" />
-        <Setter Property="MinHeight" Value="43" />
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{DynamicResource HoverBrush}" />
-            </Trigger>
-        </Style.Triggers>
-    </Style>
-    <Style x:Key="TableHeading" TargetType="TextBlock" BasedOn="{StaticResource PageMetadata}">
-        <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Margin" Value="0,0,10,0" />
-    </Style>
-    <Style x:Key="TableCell" TargetType="TextBlock" BasedOn="{StaticResource PageMetadata}">
-        <Setter Property="Margin" Value="1,0,11,0" />
-    </Style>
     <Style x:Key="EmptyArea" TargetType="Border">
-        <Setter Property="Padding" Value="15,13" />
-        <Setter Property="Background" Value="{DynamicResource SurfaceQuietBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="2,12,2,12" />
         <Setter Property="Visibility" Value="Collapsed" />
         <Style.Triggers>
             <DataTrigger Binding="{Binding HasItems}" Value="False">
@@ -92,6 +17,7 @@
     </Style>
     <Style x:Key="PageNotice" TargetType="TextBlock" BasedOn="{StaticResource PageMetadata}">
         <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextTrimming" Value="None" />
         <Setter Property="Margin" Value="0,0,0,9" />
         <Style.Triggers>
             <Trigger Property="Text" Value="">
@@ -116,9 +42,9 @@
     </Style>
     <Style x:Key="RecordText" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
         <Setter Property="FontFamily" Value="Cascadia Mono, Consolas" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="14" />
         <Setter Property="IsReadOnly" Value="True" />
-        <Setter Property="Padding" Value="12,9" />
+        <Setter Property="Padding" Value="13,11" />
         <Setter Property="TextWrapping" Value="Wrap" />
         <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
         <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
@@ -126,8 +52,8 @@
     </Style>
     <Style x:Key="ProfileListItem" TargetType="ListBoxItem">
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-        <Setter Property="Padding" Value="13,10,12,10" />
-        <Setter Property="MinHeight" Value="55" />
+        <Setter Property="Padding" Value="14,10" />
+        <Setter Property="MinHeight" Value="56" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="AutomationProperties.Name" Value="{Binding Title}" />
@@ -135,14 +61,15 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ListBoxItem">
                     <Grid Background="Transparent">
-                        <Border x:Name="Row" Background="{DynamicResource SurfaceBrush}" Padding="{TemplateBinding Padding}"
-                                BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,0,1">
+                        <Border x:Name="Row" Background="Transparent" Padding="{TemplateBinding Padding}"
+                                Margin="1,1,3,1" CornerRadius="7">
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" />
                         </Border>
                         <Border x:Name="SelectionMark" Background="{DynamicResource AccentBrush}"
-                                HorizontalAlignment="Left" Width="2" Margin="0,4" CornerRadius="1"
+                                HorizontalAlignment="Left" Width="3" Margin="2,13,0,13" CornerRadius="1.5"
                                 Visibility="Collapsed" IsHitTestVisible="False" />
                         <Border x:Name="KeyboardOutline" BorderBrush="{DynamicResource FocusBrush}" BorderThickness="1"
+                                Margin="1,1,3,1" CornerRadius="7"
                                 Visibility="Collapsed" IsHitTestVisible="False" />
                     </Grid>
                     <ControlTemplate.Triggers>
@@ -183,10 +110,6 @@
         </Setter>
     </Style>
     <Style x:Key="ProfileListFrame" TargetType="Border">
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="6" />
-        <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
         <Style.Triggers>
             <DataTrigger Binding="{Binding HasItems}" Value="False">
                 <Setter Property="Visibility" Value="Collapsed" />
@@ -194,87 +117,197 @@
         </Style.Triggers>
     </Style>
     <DataTemplate x:Key="ProfileListRow">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="22" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="14" />
-            </Grid.ColumnDefinitions>
-            <Image Width="17" Height="17" VerticalAlignment="Center" HorizontalAlignment="Left">
-                <Image.Style>
-                    <Style TargetType="Image">
-                        <Setter Property="Source" Value="{DynamicResource Icon.Profile}" />
+        <StackPanel>
+            <TextBlock Text="{Binding Title}" Foreground="{DynamicResource TextBrush}"
+                       FontSize="16" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+            <TextBlock Margin="0,3,0,0">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock" BasedOn="{StaticResource PageMetadata}">
+                        <Setter Property="Text" Value="{Binding CategoryLabel}" />
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding CategoryLabel}" Value="Игры">
-                                <Setter Property="Source" Value="{DynamicResource Icon.Games}" />
+                            <DataTrigger Binding="{Binding IsInstalled}" Value="True">
+                                <Setter Property="Text" Value="{Binding StateLabel}" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsEnabled}" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
-                </Image.Style>
-            </Image>
-            <StackPanel Grid.Column="1" Margin="6,0,10,0">
-                <TextBlock Text="{Binding Title}" Foreground="{DynamicResource TextBrush}"
-                           FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                <TextBlock Margin="0,3,0,0" TextTrimming="CharacterEllipsis">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource PageMetadata}">
-                            <Setter Property="Text" Value="{Binding CategoryLabel}" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsInstalled}" Value="True">
-                                    <Setter Property="Text" Value="{Binding StateLabel}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding IsEnabled}" Value="True">
-                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-            </StackPanel>
-            <Image Grid.Column="2" Width="13" Height="13" VerticalAlignment="Center"
-                   Source="{DynamicResource Icon.Chevron}" Opacity="0.75" />
-        </Grid>
+                </TextBlock.Style>
+            </TextBlock>
+        </StackPanel>
     </DataTemplate>
+    <Style x:Key="TechnicalDisclosure" TargetType="Expander">
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+        <Setter Property="IsExpanded" Value="False" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Expander">
+                    <StackPanel>
+                        <ToggleButton x:Name="HeaderButton" Content="{TemplateBinding Header}"
+                                      ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                      IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                      HorizontalContentAlignment="Left" MinHeight="40" Padding="0,9"
+                                      AutomationProperties.Name="{Binding Header, RelativeSource={RelativeSource TemplatedParent}}">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border x:Name="HeaderFace" Background="Transparent" Padding="{TemplateBinding Padding}"
+                                            BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition />
+                                            </Grid.ColumnDefinitions>
+                                            <Path x:Name="Chevron" Data="M0,0 L4,4 0,8" Width="4" Height="8"
+                                                  Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5"
+                                                  Stretch="Uniform" Margin="1,0,12,0" VerticalAlignment="Center"
+                                                  RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False" />
+                                            <ContentPresenter Grid.Column="1" VerticalAlignment="Center"
+                                                              TextElement.Foreground="{DynamicResource MutedBrush}" />
+                                        </Grid>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="HeaderFace" Property="Background" Value="{DynamicResource HoverBrush}" />
+                                        </Trigger>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="Chevron" Property="RenderTransform">
+                                                <Setter.Value><RotateTransform Angle="90" /></Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                        <Trigger Property="IsKeyboardFocused" Value="True">
+                                            <Setter TargetName="HeaderFace" Property="BorderBrush" Value="{DynamicResource FocusBrush}" />
+                                            <Setter TargetName="HeaderFace" Property="BorderThickness" Value="1" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+                        <ContentPresenter x:Name="TechnicalBody" Margin="0,7,0,0" HorizontalAlignment="Stretch"
+                                          Visibility="Collapsed" />
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsExpanded" Value="True">
+                            <Setter TargetName="TechnicalBody" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <DataTemplate x:Key="ProfileIntro">
         <StackPanel>
             <TextBlock Style="{DynamicResource PageTitleText}" Text="{Binding Title}" TextWrapping="Wrap"
-                       AutomationProperties.HeadingLevel="Level1" />
-            <TextBlock Style="{DynamicResource BodyText}" Text="{Binding Description}" TextWrapping="Wrap" Margin="0,5,0,13" />
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource PageMetadata}" Text="{Binding CategoryLabel}" Margin="0,0,12,0" />
-                <TextBlock Style="{StaticResource PageMetadata}" Text="{Binding VerificationLabel}" />
-            </StackPanel>
+                       FontSize="32" AutomationProperties.HeadingLevel="Level2" />
+            <TextBlock Style="{DynamicResource BodyText}" Text="{Binding Description}" FontSize="15"
+                       LineHeight="23" TextWrapping="Wrap" Margin="0,9,0,16" />
+            <Border Margin="0,0,0,14">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsDemo}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <TextBlock Text="{Binding ExampleExplanation}" Style="{DynamicResource CaptionText}" TextWrapping="Wrap" />
+            </Border>
         </StackPanel>
     </DataTemplate>
     <DataTemplate x:Key="ProfileDetails">
         <StackPanel>
-            <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,1" Padding="0,11" Margin="0,0,17,0">
-                <UniformGrid Columns="2">
-                    <StackPanel Margin="0,0,12,10">
-                        <TextBlock Style="{StaticResource PageMetadata}" Text="{DynamicResource Profile.Author}" />
-                        <TextBlock Text="{Binding Author}" TextWrapping="Wrap" Margin="0,4,0,0" />
+            <StackPanel Margin="0,0,0,18">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasCompatibilityNotes}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <TextBlock Text="{DynamicResource Profile.Conditions}" Style="{DynamicResource SectionTitleText}"
+                           AutomationProperties.HeadingLevel="Level3" Margin="0,0,0,5" />
+                <TextBlock Text="{Binding Profile.CompatibilityNotes}" Style="{DynamicResource BodyText}" />
+            </StackPanel>
+            <Expander Header="{DynamicResource Profile.TechnicalDetails}" Style="{StaticResource TechnicalDisclosure}"
+                      AutomationProperties.Name="{DynamicResource Profile.TechnicalDetails}">
+                <StackPanel>
+                    <ItemsControl x:Name="Entries" ItemsSource="{Binding EntryGroups}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,15">
+                                    <TextBlock Text="{Binding Label}" Style="{StaticResource PageMetadata}" FontWeight="SemiBold" />
+                                    <TextBox Text="{Binding Lines, Mode=OneWay}" IsReadOnly="True" MinHeight="0" MaxHeight="175"
+                                             AutomationProperties.Name="{Binding Label}" Background="{DynamicResource SurfaceQuietBrush}"
+                                             FontFamily="Cascadia Mono, Consolas" FontSize="14" TextWrapping="Wrap"
+                                             HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"
+                                             BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="1"
+                                             Padding="9,7" Margin="0,6,0,0" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{DynamicResource Profile.NoEntries}" Margin="0,0,0,12">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasItems, ElementName=Entries}" Value="False">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <StackPanel Margin="0,0,0,15">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDemo}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <TextBlock Text="{Binding Profile.CompatibilityNotes}" Style="{DynamicResource BodyText}" />
                     </StackPanel>
-                    <StackPanel Margin="0,0,12,10">
-                        <TextBlock Style="{StaticResource PageMetadata}" Text="{DynamicResource Profile.Version}" />
-                        <TextBlock Text="{Binding Version}" TextWrapping="Wrap" Margin="0,4,0,0" />
-                    </StackPanel>
-                    <StackPanel Margin="0,0,12,0">
-                        <TextBlock Style="{StaticResource PageMetadata}" Text="{DynamicResource Profile.Source}" />
-                        <TextBlock Text="{Binding SourceLabel}" TextWrapping="Wrap" Margin="0,4,0,0" />
-                    </StackPanel>
-                    <StackPanel>
-                        <TextBlock Style="{StaticResource PageMetadata}" Text="{DynamicResource Profile.Updated}" />
-                        <TextBlock Text="{Binding UpdatedLabel}" TextWrapping="Wrap" Margin="0,4,0,0" />
-                    </StackPanel>
-                </UniformGrid>
-            </Border>
-            <TextBlock Text="{DynamicResource Profile.Details}" Style="{DynamicResource SectionTitleText}"
-                       AutomationProperties.HeadingLevel="Level2" Margin="0,0,0,8" />
-            <TextBox Text="{Binding DetailsText, Mode=OneWay}" Style="{StaticResource RecordText}" MaxHeight="330"
-                     AutomationProperties.Name="{DynamicResource Profile.Details}" />
-            <TextBlock Text="{DynamicResource Profile.Compatibility}" Style="{DynamicResource SectionTitleText}"
-                       AutomationProperties.HeadingLevel="Level2" Margin="0,17,0,5" />
-            <TextBlock Text="{Binding CompatibilityLabel}" Style="{DynamicResource BodyText}" TextWrapping="Wrap" />
+                    <Border BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0" Padding="0,13,0,0" Margin="0,0,0,0">
+                        <UniformGrid Columns="2">
+                            <StackPanel Margin="0,0,12,13">
+                                <TextBlock Style="{StaticResource PageMetadata}" Text="{DynamicResource Profile.Author}" />
+                                <TextBlock Text="{Binding Author}" Foreground="{DynamicResource TextBrush}" FontSize="15"
+                                           TextWrapping="Wrap" Margin="0,4,0,0" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,13">
+                                <TextBlock Style="{StaticResource PageMetadata}" Text="{DynamicResource Profile.Version}" />
+                                <TextBlock Text="{Binding Version}" Foreground="{DynamicResource TextBrush}" FontSize="15"
+                                           TextWrapping="Wrap" Margin="0,4,0,0" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,13">
+                                <TextBlock Style="{StaticResource PageMetadata}" Text="{DynamicResource Profile.Source}" />
+                                <TextBlock Text="{Binding SourceLabel}" Foreground="{DynamicResource TextBrush}" FontSize="15"
+                                           TextWrapping="Wrap" Margin="0,4,0,0" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,13">
+                                <TextBlock Style="{StaticResource PageMetadata}" Text="{DynamicResource Profile.Updated}" />
+                                <TextBlock Text="{Binding UpdatedLabel}" Foreground="{DynamicResource TextBrush}" FontSize="15"
+                                           TextWrapping="Wrap" Margin="0,4,0,0" />
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource PageMetadata}" Text="{DynamicResource Profile.Verification}" />
+                                <TextBlock Text="{Binding VerificationLabel}" Foreground="{DynamicResource TextBrush}" FontSize="15"
+                                           TextWrapping="Wrap" Margin="0,4,0,0" />
+                            </StackPanel>
+                        </UniformGrid>
+                    </Border>
+                </StackPanel>
+            </Expander>
         </StackPanel>
     </DataTemplate>
 </ResourceDictionary>

@@ -61,12 +61,15 @@ public partial class MainWindow : Window
     {
         for (var current = element; current is not null; current = GetParent(current))
         {
-            if (current == NavigationBar || current == activePage)
+            if (current == NavigationBar)
                 return true;
+            if (current == activePage)
+                return shell?.CurrentPage is not LibraryViewModel { IsEditing: true };
 
             // The wheel belongs to the scroll region even at its first or last row.
             if (current is ScrollViewer { ScrollableHeight: > 0, VerticalScrollBarVisibility: not ScrollBarVisibility.Disabled }
-                or ComboBox or TextBoxBase or Slider or ScrollBar)
+                or ComboBox or TextBoxBase or Slider or ScrollBar or TabItem ||
+                current is ButtonBase button && !NavigationBar.IsAncestorOf(button))
                 return false;
         }
 

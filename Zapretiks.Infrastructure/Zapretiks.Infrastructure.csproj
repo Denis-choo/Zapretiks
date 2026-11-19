@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Zapretiks.Tests" />
     <ProjectReference Include="..\Zapretiks.Core\Zapretiks.Core.csproj" />
     <EmbeddedResource Include="Catalog.json" LogicalName="Zapretiks.Catalog.json" />
   </ItemGroup>

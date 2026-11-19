@@ -5,23 +5,23 @@
         <ResourceDictionary Source="Strings.ru.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
-    <SolidColorBrush x:Key="CanvasBrush" Color="#17151E" />
-    <SolidColorBrush x:Key="SidebarBrush" Color="#141219" />
-    <SolidColorBrush x:Key="SurfaceQuietBrush" Color="#1C1924" />
-    <SolidColorBrush x:Key="SurfaceBrush" Color="#24202F" />
-    <SolidColorBrush x:Key="SurfaceRaisedBrush" Color="#2C2638" />
-    <SolidColorBrush x:Key="FieldBrush" Color="#211C2B" />
-    <SolidColorBrush x:Key="SubtleBorderBrush" Color="#302A3B" />
-    <SolidColorBrush x:Key="BorderBrush" Color="#363043" />
-    <SolidColorBrush x:Key="TextBrush" Color="#F1EDF8" />
-    <SolidColorBrush x:Key="MutedBrush" Color="#B9B0C8" />
-    <SolidColorBrush x:Key="SubtleBrush" Color="#9F95B0" />
-    <SolidColorBrush x:Key="AccentBrush" Color="#BDA9FC" />
-    <SolidColorBrush x:Key="AccentSoftBrush" Color="#DBCCFF" />
-    <SolidColorBrush x:Key="AccentSurfaceBrush" Color="#342847" />
-    <SolidColorBrush x:Key="AccentInkBrush" Color="#231A38" />
-    <SolidColorBrush x:Key="WarmAccentBrush" Color="#BDA9FC" />
-    <SolidColorBrush x:Key="WarmSurfaceBrush" Color="#211C2B" />
+    <SolidColorBrush x:Key="CanvasBrush" Color="#1B1920" />
+    <SolidColorBrush x:Key="SidebarBrush" Color="#18161D" />
+    <SolidColorBrush x:Key="SurfaceQuietBrush" Color="#211E27" />
+    <SolidColorBrush x:Key="SurfaceBrush" Color="#292531" />
+    <SolidColorBrush x:Key="SurfaceRaisedBrush" Color="#332D3D" />
+    <SolidColorBrush x:Key="FieldBrush" Color="#282430" />
+    <SolidColorBrush x:Key="SubtleBorderBrush" Color="#37313F" />
+    <SolidColorBrush x:Key="BorderBrush" Color="#443C4E" />
+    <SolidColorBrush x:Key="TextBrush" Color="#F2EEF6" />
+    <SolidColorBrush x:Key="MutedBrush" Color="#C5BBCE" />
+    <SolidColorBrush x:Key="SubtleBrush" Color="#ADA3B9" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#CBB6F2" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#E2D4F7" />
+    <SolidColorBrush x:Key="AccentSurfaceBrush" Color="#40354E" />
+    <SolidColorBrush x:Key="AccentInkBrush" Color="#261C32" />
+    <SolidColorBrush x:Key="WarmAccentBrush" Color="#CBB6F2" />
+    <SolidColorBrush x:Key="WarmSurfaceBrush" Color="#2A2432" />
     <SolidColorBrush x:Key="SuccessBrush" Color="#97CDAE" />
     <SolidColorBrush x:Key="SuccessSurfaceBrush" Color="#26372E" />
     <SolidColorBrush x:Key="WarningBrush" Color="#E2C18C" />
@@ -31,20 +31,20 @@
     <SolidColorBrush x:Key="GreenBrush" Color="#97CDAE" />
     <SolidColorBrush x:Key="AmberBrush" Color="#E2C18C" />
     <SolidColorBrush x:Key="DangerBrush" Color="#E9AAA9" />
-    <SolidColorBrush x:Key="HoverBrush" Color="#30283E" />
-    <SolidColorBrush x:Key="PressedBrush" Color="#393047" />
-    <SolidColorBrush x:Key="FocusBrush" Color="#BDA9FC" />
-    <SolidColorBrush x:Key="DisabledSurfaceBrush" Color="#25212D" />
-    <SolidColorBrush x:Key="DisabledTextBrush" Color="#8F849F" />
-    <SolidColorBrush x:Key="PrimaryEdgeBrush" Color="#BDA9FC" />
-    <SolidColorBrush x:Key="PanelSheenBrush" Color="#24202F" />
-    <SolidColorBrush x:Key="HeroSurfaceBrush" Color="#24202F" />
-    <SolidColorBrush x:Key="SecondaryFillBrush" Color="#2C2638" />
-    <SolidColorBrush x:Key="PrimaryFillBrush" Color="#BDA9FC" />
-    <LinearGradientBrush x:Key="WorkspaceBrush" StartPoint="1,0" EndPoint="0,1" ColorInterpolationMode="ScRgbLinearInterpolation">
-        <GradientStop Color="#2C223D" Offset="0" />
-        <GradientStop Color="#221B30" Offset="0.56" />
-        <GradientStop Color="#17141F" Offset="1" />
+    <SolidColorBrush x:Key="HoverBrush" Color="#393242" />
+    <SolidColorBrush x:Key="PressedBrush" Color="#443A50" />
+    <SolidColorBrush x:Key="FocusBrush" Color="#CBB6F2" />
+    <SolidColorBrush x:Key="DisabledSurfaceBrush" Color="#282431" />
+    <SolidColorBrush x:Key="DisabledTextBrush" Color="#A194AE" />
+    <SolidColorBrush x:Key="PrimaryEdgeBrush" Color="#D6C3F7" />
+    <SolidColorBrush x:Key="PanelSheenBrush" Color="#292531" />
+    <SolidColorBrush x:Key="HeroSurfaceBrush" Color="#292531" />
+    <SolidColorBrush x:Key="SecondaryFillBrush" Color="#342D3E" />
+    <SolidColorBrush x:Key="PrimaryFillBrush" Color="#D2BEF4" />
+    <LinearGradientBrush x:Key="WorkspaceBrush" StartPoint="0.86,0" EndPoint="0.17,1" ColorInterpolationMode="ScRgbLinearInterpolation">
+        <GradientStop Color="#342B43" Offset="0" />
+        <GradientStop Color="#2A2336" Offset="0.49" />
+        <GradientStop Color="#201C29" Offset="1" />
     </LinearGradientBrush>
     <FontFamily x:Key="TextFont">Segoe UI Variable Text, Segoe UI</FontFamily>
     <FontFamily x:Key="DisplayFont">Segoe UI Variable Display, Segoe UI</FontFamily>
@@ -63,9 +63,9 @@
     <Style x:Key="PageTitleText" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
         <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
         <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
-        <Setter Property="FontSize" Value="28" />
-        <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="LineHeight" Value="36" />
+        <Setter Property="FontSize" Value="30" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="LineHeight" Value="38" />
     </Style>
     <Style x:Key="SubtitleText" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
         <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
@@ -88,23 +88,27 @@
     </Style>
     <Style x:Key="BodyText" TargetType="TextBlock" BasedOn="{StaticResource SubtitleText}">
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="LineHeight" Value="20" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="LineHeight" Value="22" />
     </Style>
     <Style x:Key="CaptionText" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
         <Setter Property="Foreground" Value="{StaticResource SubtleBrush}" />
         <Setter Property="FontSize" Value="12" />
     </Style>
-    <Style x:Key="Glyph" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+    <Style x:Key="FluentIcon" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
         <Setter Property="FontFamily" Value="{StaticResource GlyphFont}" />
-        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontSize" Value="17" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="IsHitTestVisible" Value="False" />
     </Style>
     <Style x:Key="CardBorder" TargetType="Border">
         <Setter Property="Background" Value="{StaticResource PanelSheenBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource SubtleBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="CornerRadius" Value="11" />
         <Setter Property="Padding" Value="16" />
     </Style>
 
@@ -113,27 +117,28 @@
         <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="FontSize" Value="13" />
-        <Setter Property="MinHeight" Value="34" />
-        <Setter Property="Padding" Value="12,5" />
+        <Setter Property="FontSize" Value="13.5" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="MinHeight" Value="36" />
+        <Setter Property="Padding" Value="13,6" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Grid Background="Transparent">
-                        <Border x:Name="Outline" CornerRadius="6"
+                        <Border x:Name="Outline" CornerRadius="8"
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}" />
-                        <Border x:Name="InteractionTint" Margin="1" CornerRadius="6"
+                        <Border x:Name="InteractionTint" Margin="1" CornerRadius="7"
                                 Background="White" Opacity="0" IsHitTestVisible="False" />
                         <Border Padding="{TemplateBinding Padding}">
                             <ContentPresenter x:Name="ButtonLabel" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="Center" RecognizesAccessKey="True"
                                               TextElement.Foreground="{TemplateBinding Foreground}" />
                         </Border>
-                        <Border x:Name="FocusRing" Margin="-2" CornerRadius="7" BorderThickness="1"
+                        <Border x:Name="FocusRing" Margin="-2" CornerRadius="10" BorderThickness="1"
                                 BorderBrush="{StaticResource FocusBrush}" Visibility="Collapsed" IsHitTestVisible="False" />
                     </Grid>
                     <ControlTemplate.Triggers>
@@ -227,9 +232,9 @@
         <Setter Property="SelectionOpacity" Value="0.3" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Padding" Value="9,5" />
-        <Setter Property="MinHeight" Value="34" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Padding" Value="10,5" />
+        <Setter Property="MinHeight" Value="36" />
+        <Setter Property="FontSize" Value="14" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Template">
@@ -238,7 +243,7 @@
                     <Grid>
                         <Border x:Name="Outline" Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
                             <ScrollViewer x:Name="PART_ContentHost" Focusable="False"
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                         </Border>
@@ -269,7 +274,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBoxItem">
                     <Grid>
-                        <Border x:Name="Row" Padding="{TemplateBinding Padding}" CornerRadius="4" Background="Transparent">
+                        <Border x:Name="Row" Padding="{TemplateBinding Padding}" CornerRadius="6" Background="Transparent">
                             <ContentPresenter TextElement.Foreground="{TemplateBinding Foreground}" />
                         </Border>
                         <Border x:Name="SelectionMark" Width="2.5" Height="12" CornerRadius="1.25"
@@ -294,8 +299,9 @@
         <Setter Property="Background" Value="{StaticResource FieldBrush}" />
         <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-        <Setter Property="MinHeight" Value="34" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="MinHeight" Value="36" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="Medium" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="MaxDropDownHeight" Value="300" />
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
@@ -310,7 +316,7 @@
                             <ToggleButton.Template>
                                 <ControlTemplate TargetType="ToggleButton">
                                     <Border x:Name="Outline" Background="{TemplateBinding Background}"
-                                            BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="6">
+                                            BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="8">
                                         <Path x:Name="Caret" Data="M 0,0 L 4,4 L 8,0" Stroke="{StaticResource MutedBrush}"
                                               StrokeThickness="1.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                                               StrokeLineJoin="Round" HorizontalAlignment="Right"
@@ -335,7 +341,7 @@
                                           ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" />
                         <Popup x:Name="PART_Popup" AllowsTransparency="True" Placement="Bottom"
                                IsOpen="{TemplateBinding IsDropDownOpen}" Focusable="False">
-                            <Border Margin="0,3,0,0" Padding="3" CornerRadius="4" BorderThickness="1"
+                            <Border Margin="0,4,0,0" Padding="4" CornerRadius="8" BorderThickness="1"
                                     MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
                                     MaxHeight="{TemplateBinding MaxDropDownHeight}"
                                     Background="{StaticResource PanelSheenBrush}" BorderBrush="{StaticResource BorderBrush}">
@@ -520,18 +526,32 @@
         </Setter>
     </Style>
     <Style x:Key="ScrollThumb" TargetType="Thumb">
-        <Setter Property="Background" Value="#5B6067" />
+        <Setter Property="Background" Value="#786D83" />
         <Setter Property="MinHeight" Value="24" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Thumb">
-                    <Border Margin="3,1,2,1" CornerRadius="3" Background="{TemplateBinding Background}" />
+                    <Grid Background="Transparent">
+                        <Border x:Name="Grip" Width="5" Margin="0,1" CornerRadius="3"
+                                HorizontalAlignment="Center" Background="{TemplateBinding Background}" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding Orientation, RelativeSource={RelativeSource AncestorType=ScrollBar}}" Value="Horizontal">
+                            <Setter TargetName="Grip" Property="Width" Value="Auto" />
+                            <Setter TargetName="Grip" Property="Height" Value="5" />
+                            <Setter TargetName="Grip" Property="HorizontalAlignment" Value="Stretch" />
+                            <Setter TargetName="Grip" Property="VerticalAlignment" Value="Center" />
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{StaticResource SubtleBrush}" />
+            </Trigger>
+            <Trigger Property="IsDragging" Value="True">
+                <Setter Property="Background" Value="{StaticResource AccentBrush}" />
             </Trigger>
             <DataTrigger Binding="{Binding Orientation, RelativeSource={RelativeSource AncestorType=ScrollBar}}" Value="Horizontal">
                 <Setter Property="MinWidth" Value="24" />

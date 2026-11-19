@@ -8,7 +8,7 @@ internal sealed class GamesViewModel : ViewModel
 {
     private readonly ISteamScanner scanner;
     private IReadOnlyList<GameRow> games = [];
-    private string statusMessage = "Запустите сканирование, чтобы найти установленные игры Steam.";
+    private string statusMessage = "Найдите игры, установленные через Steam на этом компьютере.";
     private bool isScanning;
     private bool scanned;
 
@@ -21,7 +21,12 @@ internal sealed class GamesViewModel : ViewModel
     public IReadOnlyList<GameRow> Games { get => games; private set { if (Set(ref games, value)) Raise(nameof(HasItems)); } }
     public bool HasItems => Games.Count > 0;
     public string StatusMessage { get => statusMessage; private set => Set(ref statusMessage, value); }
-    public bool IsScanning { get => isScanning; private set => Set(ref isScanning, value); }
+    public bool IsScanning
+    {
+        get => isScanning;
+        private set { if (Set(ref isScanning, value)) Raise(nameof(ScanLabel)); }
+    }
+    public string ScanLabel => IsScanning ? "Идёт поиск…" : scanned ? "Обновить список" : "Найти игры";
     public ICommand ScanCommand { get; }
 
     public void ScanWhenOpened()

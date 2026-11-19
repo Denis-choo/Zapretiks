@@ -100,29 +100,90 @@ internal abstract class IntegrationViewModel : ViewModel
 
 internal sealed class HomeViewModel : IntegrationViewModel
 {
-    public HomeViewModel(Session session, ICommand openCatalog, ICommand openLibrary, ICommand openSettings)
+    public HomeViewModel(Session session, ICommand openCatalog, ICommand openLibrary, ICommand openSettings,
+        ICommand createProfile, ICommand openPreview)
         : base(session)
     {
         OpenCatalogCommand = openCatalog;
         OpenLibraryCommand = openLibrary;
         OpenSettingsCommand = openSettings;
+        CreateProfileCommand = createProfile;
+        OpenPreviewCommand = openPreview;
         session.Changed += () =>
         {
+            Raise(nameof(StatusText));
+            Raise(nameof(StatusDetail));
+            Raise(nameof(StatusCheckedAt));
+            Raise(nameof(IsCheckingStatus));
+            Raise(nameof(IsRunning));
+            Raise(nameof(IsStatusWarning));
+            Raise(nameof(FolderDisplay));
             Raise(nameof(InstalledCount));
+            Raise(nameof(HasProfiles));
+            Raise(nameof(HasConfiguredFolder));
             Raise(nameof(EnabledCount));
             Raise(nameof(RecentProfileTitles));
         };
     }
 
-    public string StatusText => "Статус неизвестен";
-    public string StatusDetail => "Управление запуском и остановкой пока недоступно.";
+    public bool IsCheckingStatus => Session.IsCheckingStatus;
+    public bool HasConfiguredFolder => Session.State.Settings.ZapretDirectory is not null;
+    public bool IsRunning => !IsCheckingStatus && Session.RuntimeStatus.State == ZapretRuntimeState.Running;
+    public bool IsStatusWarning => !IsCheckingStatus && (Session.RuntimeStatus.State is
+        ZapretRuntimeState.Unknown or ZapretRuntimeState.Unavailable ||
+        Session.RuntimeStatus.MatchingProcessCount > 1 || Session.RuntimeStatus.OtherProcessCount > 0 ||
+        Session.RuntimeStatus.UnresolvedProcessCount > 0);
+    public string StatusText => IsCheckingStatus ? "Проверяем состояние…" : Session.RuntimeStatus.State switch
+    {
+        ZapretRuntimeState.Disconnected => "Подключите папку zapret",
+        ZapretRuntimeState.Unavailable => "Проверьте папку zapret",
+        ZapretRuntimeState.Running => "Процесс запущен",
+        ZapretRuntimeState.NotRunning => "Не запущен",
+        _ => "Статус неизвестен"
+    };
+    public string StatusDetail
+    {
+        get
+        {
+            if (IsCheckingStatus)
+                return "Проверяем файлы сборки и процессы winws.exe.";
+
+            var status = Session.RuntimeStatus;
+            var detail = status.State switch
+            {
+                ZapretRuntimeState.Disconnected => "Выберите папку сборки Flowseal для проверки её состояния.",
+                ZapretRuntimeState.Unavailable => "Папка недоступна или в ней отсутствуют необходимые компоненты.",
+                ZapretRuntimeState.Running when status.MatchingProcessCount > 1 =>
+                    $"Из подключённой папки запущено несколько процессов winws.exe ({status.MatchingProcessCount}).",
+                ZapretRuntimeState.Running => "Найден запущенный winws.exe из подключённой папки.",
+                ZapretRuntimeState.NotRunning => "Запущенный winws.exe из подключённой папки не найден.",
+                _ when status.AccessDeniedProcessCount > 0 || status.EnumerationAccessDenied =>
+                    "Windows ограничила доступ к данным процессов. Принадлежность подключённой папке не подтверждена.",
+                _ => "Не удалось подтвердить состояние процесса. Повторите проверку."
+            };
+
+            if (status.OtherProcessCount > 0)
+                detail += $" Процессы winws.exe из других папок: {status.OtherProcessCount}.";
+            if (status.State == ZapretRuntimeState.Running && status.UnresolvedProcessCount > 0)
+                detail += $" Процессы с недоступными данными: {status.UnresolvedProcessCount}.";
+
+            return detail;
+        }
+    }
+    public string StatusCheckedAt => !IsCheckingStatus && Session.RuntimeStatus.CheckedAt is { } timestamp
+        ? $"Проверено в {timestamp.ToLocalTime():HH:mm:ss}" : "";
+    public string FolderDisplay => Session.Installation?.Directory ?? "";
+    public ICommand RefreshStatusCommand => Session.RefreshStatusCommand;
     public int InstalledCount => Session.State.Profiles.Length;
+    public bool HasProfiles => InstalledCount > 0;
     public int EnabledCount => Session.State.Profiles.Count(item => item.IsEnabled);
     public IReadOnlyList<string> RecentProfileTitles => Session.State.Profiles.Reverse().Take(2)
         .Select(item => item.Profile.Name).ToArray();
     public ICommand OpenCatalogCommand { get; }
     public ICommand OpenLibraryCommand { get; }
     public ICommand OpenSettingsCommand { get; }
+    public ICommand CreateProfileCommand { get; }
+    public ICommand OpenPreviewCommand { get; }
 }
 
 internal sealed class SettingsViewModel : IntegrationViewModel
@@ -136,6 +197,7 @@ internal sealed class SettingsViewModel : IntegrationViewModel
     }
 
     public string FolderDisplay => Session.State.Settings.ZapretDirectory ?? "Папка ещё не выбрана";
+    public bool HasDiagnosis => Session.Installation is not null || Session.RejectedFolderDiagnostics.Count > 0;
     public IReadOnlyList<string> Diagnostics => Session.RejectedFolderDiagnostics.Count > 0
         ? ["Последняя выбранная папка", .. Session.RejectedFolderDiagnostics]
         : Session.Installation?.Diagnostics ?? [];
@@ -176,6 +238,7 @@ internal sealed class SettingsViewModel : IntegrationViewModel
         {
             Raise(nameof(FolderDisplay));
             Raise(nameof(Diagnostics));
+            Raise(nameof(HasDiagnosis));
             Raise(nameof(AutoScanSteam));
         }
         finally

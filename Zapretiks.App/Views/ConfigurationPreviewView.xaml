@@ -1,0 +1,127 @@
+<UserControl x:Class="Zapretiks.App.Views.ConfigurationPreviewView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock Text="{DynamicResource Library.Preview}" Style="{DynamicResource PageTitleText}"
+                   TextWrapping="Wrap" AutomationProperties.HeadingLevel="Level2" />
+        <TextBlock Text="{DynamicResource Library.PreviewHint}" Style="{DynamicResource BodyText}" Margin="0,9,0,12" />
+        <StackPanel>
+            <StackPanel.Style>
+                <Style TargetType="StackPanel">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding HasConnectedInstallation}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Style>
+            <TextBlock Text="{DynamicResource Library.PreviewNeedsFolder}" Style="{DynamicResource BodyText}" Margin="0,0,0,17" />
+            <Button Content="{DynamicResource Library.ChooseFolder}" Command="{Binding ChooseFolderCommand}"
+                    Style="{DynamicResource PrimaryButton}" HorizontalAlignment="Left" />
+        </StackPanel>
+        <StackPanel>
+            <StackPanel.Style>
+                <Style TargetType="StackPanel">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding HasConnectedInstallation}" Value="False">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Style>
+            <TextBlock Text="{Binding CalculationSelectionHint}" Style="{DynamicResource BodyText}" Margin="0,0,0,17" />
+            <Button Command="{Binding PrepareCommand}" HorizontalAlignment="Left" Margin="0,0,0,10"
+                    AutomationProperties.Name="{DynamicResource Library.PrepareName}">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                        <Setter Property="Content" Value="{DynamicResource Library.Recalculate}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding PreviewPlan}" Value="{x:Null}">
+                                <Setter Property="Content" Value="{DynamicResource Library.Prepare}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+        <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource AccentSoftBrush}"
+                   AutomationProperties.LiveSetting="Polite" TextWrapping="Wrap">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Margin" Value="0,8,0,0" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding StatusMessage}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+
+        <StackPanel>
+            <StackPanel.Style>
+                <Style TargetType="StackPanel">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding PreviewPlan}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Style>
+            <TextBlock Text="{Binding PreviewSummary}" Style="{DynamicResource SectionTitleText}" Margin="0,14,0,0"
+                       TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+            <ItemsControl ItemsSource="{Binding PreviewChanges}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="0,16,0,0">
+                            <TextBlock Text="{Binding Label}" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding Lines}" FontFamily="Cascadia Mono, Consolas" FontSize="13"
+                                       Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,6,0,0" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ItemsControl ItemsSource="{Binding PreviewPlan.Warnings}" Margin="0,13,0,0">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" Style="{DynamicResource BodyText}" Margin="0,0,0,9" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBlock Text="{DynamicResource Library.PreviewOnly}" Style="{DynamicResource CaptionText}"
+                       TextWrapping="Wrap" Margin="0,5,0,17" />
+
+            <Expander Header="{DynamicResource Library.PreviewTechnical}" Style="{DynamicResource TechnicalDisclosure}"
+                      Foreground="{DynamicResource MutedBrush}" FontSize="14">
+                <StackPanel Margin="0,10,0,0">
+                    <Button Content="{DynamicResource Library.CopyReport}" Command="{Binding CopyPreviewCommand}"
+                            Style="{DynamicResource SecondaryButton}" HorizontalAlignment="Left" Margin="0,0,0,8" />
+                    <ItemsControl ItemsSource="{Binding PreviewPlan.Files}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,7,0,8">
+                                    <TextBlock Text="{Binding FileName}" FontFamily="Cascadia Mono, Consolas"
+                                               Foreground="{DynamicResource TextBrush}" TextWrapping="Wrap" />
+                                    <TextBlock FontSize="12" Margin="0,3,0,0" Foreground="{DynamicResource SubtleBrush}" TextWrapping="Wrap">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="{Binding ExistingCount, StringFormat='Записей в файле: {0}'}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Exists}" Value="False">
+                                                        <Setter Property="Text" Value="Файл ещё не создан" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding Additions.Count, StringFormat='Добавить адресов: {0}'}" FontSize="12"
+                                               Foreground="{DynamicResource SubtleBrush}" Margin="0,3,0,0" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Expander>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

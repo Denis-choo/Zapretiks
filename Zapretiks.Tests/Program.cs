@@ -11,7 +11,10 @@ var tests = new (string Name, Func<Task> Run)[]
     ("Flowseal folder validation and strategy discovery", InspectInstallation),
     ("Preview skips duplicates, conflicts, and demo entries without writing", PreviewChanges),
     ("Disabled IPSet keeps its mode marker", PreserveIpsetMode),
-    ("Steam scanner reads an additional library and ignores partial installs", ScanSteamLibraries)
+    ("Steam scanner reads an additional library and ignores partial installs", ScanSteamLibraries),
+    ("Runtime state is scoped to the connected executable path", RuntimeStatusTests.ScopedPaths),
+    ("Runtime state distinguishes unavailable, missing, and unreadable processes", RuntimeStatusTests.UnknownStates),
+    ("Runtime state supports cancellation without leaking process details", RuntimeStatusTests.Cancellation)
 };
 
 var failures = 0;

@@ -6,9 +6,22 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="IntegrationParts.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanVisibility" />
             <Style x:Key="SettingsSectionHeading" TargetType="TextBlock" BasedOn="{StaticResource SectionTitleText}">
-                <Setter Property="Margin" Value="0,20,0,6" />
+                <Setter Property="Margin" Value="0,20,0,8" />
                 <Setter Property="AutomationProperties.HeadingLevel" Value="Level2" />
+            </Style>
+            <Style x:Key="SettingsRow" TargetType="Border" BasedOn="{StaticResource WorkspaceRow}">
+                <Setter Property="Padding" Value="14,13" />
+                <Setter Property="MinHeight" Value="60" />
+                <Setter Property="BorderBrush" Value="{StaticResource SubtleBorderBrush}" />
+            </Style>
+            <Style x:Key="SettingsFlatRow" TargetType="Border" BasedOn="{StaticResource SettingsRow}">
+                <Setter Property="Padding" Value="0,11" />
+                <Setter Property="MinHeight" Value="54" />
+            </Style>
+            <Style x:Key="SettingsRowTitle" TargetType="TextBlock" BasedOn="{StaticResource WorkspaceRowTitle}">
+                <Setter Property="FontSize" Value="15" />
             </Style>
             <Style x:Key="SettingsPath" TargetType="TextBlock" BasedOn="{StaticResource WorkspaceRowDetail}">
                 <Setter Property="TextTrimming" Value="CharacterEllipsis" />
@@ -27,22 +40,29 @@
                           PanningMode="VerticalOnly">
                 <StackPanel Margin="26,24,26,30">
                     <TextBlock Text="{DynamicResource Settings.Title}" Style="{StaticResource PageTitleText}"
-                               AutomationProperties.HeadingLevel="Level1" Margin="0,0,0,22" />
+                               AutomationProperties.HeadingLevel="Level1" Margin="0,0,0,17" />
                     <TextBlock Text="{DynamicResource Settings.Integration}" Style="{StaticResource SettingsSectionHeading}"
-                               Margin="0,0,0,9" />
-                    <Border Style="{StaticResource CardBorder}" Padding="0">
+                               Margin="0,0,0,10" />
+                    <Border Background="{StaticResource SurfaceBrush}" CornerRadius="13">
                         <StackPanel>
-                            <Border Style="{StaticResource WorkspaceRow}">
-                                <StackPanel>
-                                    <TextBlock Text="{DynamicResource Settings.Directory}" Style="{StaticResource WorkspaceRowTitle}" />
-                                    <TextBlock Text="{Binding FolderDisplay}" ToolTip="{Binding FolderDisplay}"
-                                               Style="{StaticResource SettingsPath}" />
-                                    <Button Content="{DynamicResource Common.ChooseFolder}" Command="{Binding ChooseFolderCommand}"
-                                            HorizontalAlignment="Left" Margin="0,11,0,0">
+                            <Border Style="{StaticResource SettingsRow}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
+                                        <TextBlock Text="{DynamicResource Settings.Directory}" Style="{StaticResource SettingsRowTitle}" />
+                                        <TextBlock Text="{Binding FolderDisplay}" ToolTip="{Binding FolderDisplay}"
+                                                   Style="{StaticResource SettingsPath}" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Command="{Binding ChooseFolderCommand}" VerticalAlignment="Center">
                                         <Button.Style>
                                             <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+                                                <Setter Property="Content" Value="{DynamicResource Settings.ChangeFolder}" />
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding HasConnectedInstallation}" Value="False">
+                                                        <Setter Property="Content" Value="{DynamicResource Common.ChooseFolder}" />
                                                         <Setter Property="Background" Value="{StaticResource PrimaryFillBrush}" />
                                                         <Setter Property="Foreground" Value="{StaticResource AccentInkBrush}" />
                                                         <Setter Property="BorderBrush" Value="{StaticResource PrimaryEdgeBrush}" />
@@ -52,24 +72,38 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                </StackPanel>
+                                </Grid>
                             </Border>
 
-                            <Border Style="{StaticResource WorkspaceRow}">
+                            <Button Content="{DynamicResource Settings.ShowOnboarding}" Command="{Binding ShowOnboardingCommand}"
+                                    Style="{StaticResource GhostButton}" HorizontalAlignment="Left" Margin="5,2,0,6" />
+                            <Border Visibility="{Binding HasConnectedInstallation, Converter={StaticResource BooleanVisibility}}" Style="{StaticResource SettingsRow}">
                                 <StackPanel>
-                                    <TextBlock Text="{DynamicResource Settings.Strategy}" Style="{StaticResource WorkspaceRowTitle}" />
+                                    <TextBlock Text="{DynamicResource Settings.Strategy}" Style="{StaticResource SettingsRowTitle}" />
                                     <ContentControl Content="{Binding}" ContentTemplate="{StaticResource StrategyPickerTemplate}"
                                                     HorizontalContentAlignment="Stretch" Margin="0,8,0,0" />
                                     <TextBlock Text="{DynamicResource Settings.StrategyNote}" Style="{StaticResource WorkspaceRowDetail}" />
                                 </StackPanel>
                             </Border>
 
-                            <Border Style="{StaticResource WorkspaceRow}" BorderThickness="0">
+                            <Border Style="{StaticResource SettingsRow}" BorderThickness="0"
+                                    Visibility="{Binding HasDiagnosis, Converter={StaticResource BooleanVisibility}}">
                                 <StackPanel>
-                                    <TextBlock Text="{DynamicResource Settings.Diagnostics}" Style="{StaticResource WorkspaceRowTitle}" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{DynamicResource Settings.Diagnostics}" Style="{StaticResource SettingsRowTitle}"
+                                                   VerticalAlignment="Center" Margin="0,0,12,0" />
+                                        <Button Grid.Column="1" Content="{DynamicResource Settings.Refresh}" Command="{Binding RefreshIntegrationCommand}"
+                                                Style="{StaticResource GhostButton}" VerticalAlignment="Center"
+                                                Padding="8,4" MinHeight="30" Margin="0,-4,0,-4" />
+                                    </Grid>
                                     <DockPanel Margin="0,7,0,0">
                                         <Ellipse DockPanel.Dock="Left" Style="{StaticResource InstallationIndicator}" />
-                                        <TextBlock Text="{Binding IntegrationTitle}" Style="{StaticResource WorkspaceRowDetail}" Margin="0"
+                                        <TextBlock Text="{Binding IntegrationTitle}" Style="{StaticResource SettingsRowTitle}"
+                                                   FontSize="14"
                                                    AutomationProperties.LiveSetting="Polite" />
                                     </DockPanel>
                                     <TextBlock Text="{Binding IntegrationDetail}" Style="{StaticResource WorkspaceRowDetail}" />
@@ -80,8 +114,6 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
-                                    <Button Content="{DynamicResource Settings.Refresh}" Command="{Binding RefreshIntegrationCommand}"
-                                            HorizontalAlignment="Left" Margin="0,10,0,0" />
                                 </StackPanel>
                             </Border>
                         </StackPanel>
@@ -94,39 +126,26 @@
                 BorderThickness="1,0,0,0">
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                           PanningMode="VerticalOnly">
-                <StackPanel Margin="30,33,30,30">
+                <StackPanel Margin="26,32,26,30">
                     <TextBlock Text="{DynamicResource Settings.Behavior}" Style="{StaticResource SettingsSectionHeading}"
                                Margin="0,0,0,6" />
-                    <Border Style="{StaticResource WorkspaceFlatRow}">
+                    <Border Style="{StaticResource SettingsFlatRow}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <TextBlock x:Name="SteamScanLabel" Text="{DynamicResource Settings.AutoScan}"
-                                       Style="{StaticResource WorkspaceRowTitle}" Margin="0,0,14,0" VerticalAlignment="Center" />
+                                       Style="{StaticResource SettingsRowTitle}" Margin="0,0,14,0" VerticalAlignment="Center" />
                             <CheckBox Grid.Column="1" IsChecked="{Binding AutoScanSteam, Mode=TwoWay}"
                                       Style="{StaticResource ToggleSwitch}" VerticalAlignment="Center"
                                       AutomationProperties.LabeledBy="{Binding ElementName=SteamScanLabel}" />
                         </Grid>
                     </Border>
-                    <Border Style="{StaticResource WorkspaceFlatRow}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="{DynamicResource Settings.Onboarding}" Style="{StaticResource WorkspaceRowTitle}"
-                                       Margin="0,0,14,0" VerticalAlignment="Center" />
-                            <Button Grid.Column="1" Content="{DynamicResource Settings.ShowOnboarding}"
-                                    Command="{Binding ShowOnboardingCommand}" VerticalAlignment="Center" />
-                        </Grid>
-                    </Border>
-
                     <TextBlock Text="{DynamicResource Settings.LocalData}" Style="{StaticResource SettingsSectionHeading}" />
-                    <Border Style="{StaticResource WorkspaceFlatRow}">
+                    <Border Style="{StaticResource SettingsFlatRow}">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Settings.StoragePath}" Style="{StaticResource WorkspaceRowTitle}" />
+                            <TextBlock Text="{DynamicResource Settings.StoragePath}" Style="{StaticResource SettingsRowTitle}" />
                             <TextBlock Text="{Binding DataFolderDisplay}" ToolTip="{Binding DataFolderDisplay}"
                                        Style="{StaticResource SettingsPath}" />
                             <Button Content="{DynamicResource Settings.OpenData}" Command="{Binding OpenDataFolderCommand}"
@@ -135,9 +154,9 @@
                     </Border>
 
                     <TextBlock Text="{DynamicResource Settings.About}" Style="{StaticResource SettingsSectionHeading}" />
-                    <Border Style="{StaticResource WorkspaceFlatRow}" BorderThickness="0">
+                    <Border Style="{StaticResource SettingsFlatRow}" BorderThickness="0">
                         <StackPanel>
-                            <TextBlock Style="{StaticResource WorkspaceRowTitle}">
+                            <TextBlock Style="{StaticResource SettingsRowTitle}">
                                 <Run Text="Zapretiks&#xA0;" /><Run Text="{Binding VersionText, Mode=OneWay}" />
                             </TextBlock>
                             <TextBlock Text="{DynamicResource Settings.Credit}" Style="{StaticResource WorkspaceRowDetail}" />
