@@ -14,15 +14,15 @@ internal sealed record ProfileRow(SolutionProfile Profile, bool IsInstalled, boo
     public string SourceLabel => Profile.Source;
     public bool IsDemo => Profile.IsDemo;
     public string VerificationLabel => IsDemo ? "Демо" : Profile.IsVerified ? "Проверено" : "Без проверки";
-    public string ExampleExplanation => "Учебный профиль. Его адреса исключены из расчёта.";
+    public string ExampleExplanation => "Учебное решение. Его адреса используются только в примере.";
     public bool HasCompatibilityNotes => !IsDemo && !string.IsNullOrWhiteSpace(Profile.CompatibilityNotes);
     public string UpdatedLabel => Profile.UpdatedAt.ToString("d MMMM yyyy");
     public string FirstAddress => Profile.IncludeDomains.FirstOrDefault() ?? Profile.IncludeNetworks.FirstOrDefault()
         ?? Profile.ExcludeDomains.FirstOrDefault() ?? Profile.ExcludeNetworks.FirstOrDefault() ?? Description;
-    public string ToggleLabel => IsEnabled ? "Исключить из расчёта" : "Включить в расчёт";
+    public string ToggleLabel => IsEnabled ? "Снять выбор" : "Выбрать для установки";
     public string StateLabel => IsDemo
-        ? "Демонстрационный профиль"
-        : IsEnabled ? "Учитывается в расчёте" : "Не участвует в расчёте";
+        ? "Учебное решение"
+        : IsEnabled ? "Выбрано для установки" : "Сохранено в библиотеке";
     public IReadOnlyList<ProfileEntryGroup> EntryGroups
     {
         get

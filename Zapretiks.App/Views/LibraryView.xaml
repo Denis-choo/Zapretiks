@@ -107,6 +107,9 @@
                                         <DataTrigger Binding="{Binding HasItems}" Value="False">
                                             <Setter Property="Visibility" Value="Visible" />
                                         </DataTrigger>
+                                        <DataTrigger Binding="{Binding ShowPreview}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </StackPanel.Style>
@@ -118,6 +121,18 @@
                                     Style="{DynamicResource PrimaryButton}" HorizontalAlignment="Left" />
                             <Button Content="{DynamicResource Library.OpenCatalog}" Command="{Binding OpenCatalogCommand}"
                                     Style="{DynamicResource GhostButton}" HorizontalAlignment="Left" Margin="-9,10,0,0" />
+                            <Button Content="{DynamicResource Library.Review}" Command="{Binding ReviewChangesCommand}"
+                                    HorizontalAlignment="Left" Margin="-9,4,0,0">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource GhostButton}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasConnectedInstallation}" Value="False">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
                             <Expander Header="{DynamicResource Library.HaveFile}" Style="{DynamicResource TechnicalDisclosure}" Foreground="{DynamicResource MutedBrush}"
                                       Margin="0,21,0,0" FontSize="14">
                                 <StackPanel Margin="0,9,0,0">
@@ -141,6 +156,18 @@
                                 </Style>
                             </StackPanel.Style>
                             <views:ConfigurationPreviewView />
+                            <Button Content="{DynamicResource Library.Create}" Command="{Binding CreateCommand}"
+                                    HorizontalAlignment="Left" Margin="-9,16,0,0">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource GhostButton}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasItems}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
                         </StackPanel>
 
                         <StackPanel Style="{StaticResource ProfileDetailPage}">
@@ -174,18 +201,7 @@
                                     </Button.Style>
                                 </Button>
                                 <Button Content="{DynamicResource Library.Review}" Command="{Binding ReviewChangesCommand}"
-                                        HorizontalAlignment="Left">
-                                    <Button.Style>
-                                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding SelectedItem.IsEnabled}" Value="True">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
+                                        HorizontalAlignment="Left" Style="{StaticResource SecondaryButton}" />
                             </StackPanel>
                             <StackPanel Margin="0,5,0,18">
                                 <StackPanel.Style>

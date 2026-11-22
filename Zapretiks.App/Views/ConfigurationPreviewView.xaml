@@ -33,7 +33,7 @@
             <Button Command="{Binding PrepareCommand}" HorizontalAlignment="Left" Margin="0,0,0,10"
                     AutomationProperties.Name="{DynamicResource Library.PrepareName}">
                 <Button.Style>
-                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                    <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
                         <Setter Property="Content" Value="{DynamicResource Library.Recalculate}" />
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding PreviewPlan}" Value="{x:Null}">
@@ -88,8 +88,32 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            <TextBlock Text="{DynamicResource Library.PreviewOnly}" Style="{DynamicResource CaptionText}"
-                       TextWrapping="Wrap" Margin="0,5,0,17" />
+            <WrapPanel Margin="0,4,0,14">
+                <Button Content="Применить изменения" Command="{Binding ApplyCommand}" Margin="0,0,6,5">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding PreviewPlan.CanApply}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Content="Отменить последнюю запись" Command="{Binding UndoCommand}" Margin="0,0,0,5">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding PreviewPlan.CanUndo}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </WrapPanel>
 
             <Expander Header="{DynamicResource Library.PreviewTechnical}" Style="{DynamicResource TechnicalDisclosure}"
                       Foreground="{DynamicResource MutedBrush}" FontSize="14">
@@ -115,6 +139,8 @@
                                         </TextBlock.Style>
                                     </TextBlock>
                                     <TextBlock Text="{Binding Additions.Count, StringFormat='Добавить адресов: {0}'}" FontSize="12"
+                                               Foreground="{DynamicResource SubtleBrush}" Margin="0,3,0,0" />
+                                    <TextBlock Text="{Binding Removals.Count, StringFormat='Убрать адресов: {0}'}" FontSize="12"
                                                Foreground="{DynamicResource SubtleBrush}" Margin="0,3,0,0" />
                                 </StackPanel>
                             </DataTemplate>

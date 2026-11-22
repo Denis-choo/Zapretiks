@@ -13,7 +13,7 @@ internal sealed class DesktopDialogs
 
     public string? ImportProfile()
     {
-        var dialog = new OpenFileDialog { Title = "Импорт профиля", Filter = "Профиль JSON (*.json)|*.json" };
+        var dialog = new OpenFileDialog { Title = "Импорт решения", Filter = "Решение JSON (*.json)|*.json" };
         return dialog.ShowDialog(Application.Current.MainWindow) == true ? dialog.FileName : null;
     }
 
@@ -21,10 +21,10 @@ internal sealed class DesktopDialogs
     {
         var dialog = new SaveFileDialog
         {
-            Title = "Экспорт профиля",
-            Filter = "Профиль JSON (*.json)|*.json",
+            Title = "Экспорт решения",
+            Filter = "Решение JSON (*.json)|*.json",
             DefaultExt = ".json",
-            FileName = "zapretiks-profile.json"
+            FileName = "zapretiks-solution.json"
         };
         return dialog.ShowDialog(Application.Current.MainWindow) == true ? dialog.FileName : null;
     }

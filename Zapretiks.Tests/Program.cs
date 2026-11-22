@@ -1,6 +1,12 @@
 using Zapretiks.Core;
 using Zapretiks.Infrastructure;
 
+if (args is ["--runtime-test-engine"])
+{
+    await Task.Delay(TimeSpan.FromMinutes(1));
+    return 0;
+}
+
 var tests = new (string Name, Func<Task> Run)[]
 {
     ("Canonical domain and network validation", ValidateEntries),
@@ -14,7 +20,11 @@ var tests = new (string Name, Func<Task> Run)[]
     ("Steam scanner reads an additional library and ignores partial installs", ScanSteamLibraries),
     ("Runtime state is scoped to the connected executable path", RuntimeStatusTests.ScopedPaths),
     ("Runtime state distinguishes unavailable, missing, and unreadable processes", RuntimeStatusTests.UnknownStates),
-    ("Runtime state supports cancellation without leaking process details", RuntimeStatusTests.Cancellation)
+    ("Runtime state supports cancellation without leaking process details", RuntimeStatusTests.Cancellation),
+    ("Managed strategies start, switch, and stop the owned Windows process", RuntimeControlTests.Lifecycle),
+    ("A failed switch attempts to restore the previous strategy", RuntimeControlTests.FailedSwitch),
+    ("Solutions apply and undo their own changes", ConfigurationEditorTests.ApplyAndUndo),
+    ("An outdated or interrupted write preserves user changes", ConfigurationEditorTests.ConflictsAndRecovery)
 };
 
 var failures = 0;
@@ -209,7 +219,7 @@ static async Task RejectAsync(Func<Task> action)
     throw new InvalidOperationException("Expected invalid input to be rejected.");
 }
 
-file static class TestDirectories
+internal static class TestDirectories
 {
     public static Cleanup ToCleanup(this DirectoryInfo directory) => new(directory.FullName);
 

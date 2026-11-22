@@ -3,11 +3,11 @@
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
     <sys:String x:Key="Shell.Home">Обзор</sys:String>
     <sys:String x:Key="Shell.Catalog">Каталог</sys:String>
-    <sys:String x:Key="Shell.Library">Мои профили</sys:String>
+    <sys:String x:Key="Shell.Library">Мои решения</sys:String>
     <sys:String x:Key="Shell.Games">Игры Steam</sys:String>
     <sys:String x:Key="Shell.Settings">Настройки</sys:String>
     <sys:String x:Key="Nav.Catalog">Каталог</sys:String>
-    <sys:String x:Key="Nav.Library">Профили</sys:String>
+    <sys:String x:Key="Nav.Library">Решения</sys:String>
     <sys:String x:Key="Nav.Games">Игры</sys:String>
     <sys:String x:Key="Shell.Minimize">Свернуть</sys:String>
     <sys:String x:Key="Shell.Maximize">Развернуть</sys:String>
@@ -16,7 +16,7 @@
     <sys:String x:Key="Shell.Dismiss">Закрыть уведомление</sys:String>
 
     <sys:String x:Key="Onboarding.Title">Какую папку выбрать?</sys:String>
-    <sys:String x:Key="Onboarding.Body">Распакуйте архив zapret от Flowseal. Выберите папку, внутри которой находятся bin, lists и файлы general. После подключения можно проверить запуск zapret и сравнить адреса профиля со списками сборки.</sys:String>
+    <sys:String x:Key="Onboarding.Body">Распакуйте сборку Flowseal и выберите папку, где находятся bin, lists и general.bat. Из этой папки Zapretiks запускает стратегию и использует списки адресов.</sys:String>
     <sys:String x:Key="Onboarding.Skip">Закрыть</sys:String>
     <sys:String x:Key="Common.ChooseFolder">Выбрать папку</sys:String>
 
@@ -24,30 +24,30 @@
     <sys:String x:Key="Home.ConnectFolder">Выбрать папку</sys:String>
     <sys:String x:Key="Home.ChangeFolder">Сменить папку</sys:String>
     <sys:String x:Key="Home.Strategy">Стратегия</sys:String>
-    <sys:String x:Key="Home.StrategyNote">Правила обработки трафика. Для запуска используйте сборку Flowseal.</sys:String>
+    <sys:String x:Key="Home.StrategyNote">Файл запуска из подключённой папки Flowseal.</sys:String>
     <sys:String x:Key="Home.Runtime">Работа zapret</sys:String>
     <sys:String x:Key="Home.RefreshStatus">Обновить статус</sys:String>
     <sys:String x:Key="Home.CheckingStatus">Проверка…</sys:String>
     <sys:String x:Key="Home.Integration">Папка zapret</sys:String>
     <sys:String x:Key="Home.IntegrationSettings">Настройки сборки</sys:String>
-    <sys:String x:Key="Home.Profiles">Профили</sys:String>
-    <sys:String x:Key="Home.Library">Мои профили</sys:String>
-    <sys:String x:Key="Home.LibraryEmpty">Пока нет сохранённых профилей.</sys:String>
+    <sys:String x:Key="Home.Profiles">Решения</sys:String>
+    <sys:String x:Key="Home.Library">Мои решения</sys:String>
+    <sys:String x:Key="Home.LibraryEmpty">Пока нет сохранённых решений.</sys:String>
     <sys:String x:Key="Home.Installed">Добавлено</sys:String>
-    <sys:String x:Key="Home.Enabled">Включено</sys:String>
-    <sys:String x:Key="Home.CatalogHint">Профили игр и сервисов.</sys:String>
-    <sys:String x:Key="Home.GoToLibrary">Открыть профили</sys:String>
+    <sys:String x:Key="Home.Enabled">Выбрано</sys:String>
+    <sys:String x:Key="Home.CatalogHint">Решения игр и сервисов.</sys:String>
+    <sys:String x:Key="Home.GoToLibrary">Открыть решения</sys:String>
     <sys:String x:Key="Home.GoToCatalog">Открыть каталог</sys:String>
     <sys:String x:Key="Home.PreviewChanges">Посмотреть изменения</sys:String>
     <sys:String x:Key="Home.PreviewNote">Покажет предлагаемые изменения в файлах zapret.</sys:String>
-    <sys:String x:Key="Home.CreateProfile">Создать профиль</sys:String>
+    <sys:String x:Key="Home.CreateProfile">Создать решение</sys:String>
     <sys:String x:Key="Home.WelcomeTitle">Начните с примера</sys:String>
-    <sys:String x:Key="Home.ExampleNote">Профиль — это список адресов игры или сайта. Откройте готовый пример, чтобы посмотреть, как он устроен.</sys:String>
+    <sys:String x:Key="Home.ExampleNote">Решение содержит адреса одной или нескольких игр, сайтов или сервисов. Откройте пример, чтобы посмотреть, что в него входит.</sys:String>
     <sys:String x:Key="Home.TryExample">Посмотреть пример</sys:String>
-    <sys:String x:Key="Home.ReturningTitle">Ваши профили</sys:String>
-    <sys:String x:Key="Home.ReturningNote">Откройте сохранённые профили или создайте новый.</sys:String>
+    <sys:String x:Key="Home.ReturningTitle">Ваши решения</sys:String>
+    <sys:String x:Key="Home.ReturningNote">Откройте сохранённые решения или создайте своё.</sys:String>
     <sys:String x:Key="Home.SetupTitle">Подключение zapret</sys:String>
-    <sys:String x:Key="Home.SetupNote">Выберите папку распакованной сборки Flowseal, чтобы проверить её работу и подготовить изменения.</sys:String>
+    <sys:String x:Key="Home.SetupNote">Выберите папку распакованной сборки Flowseal, чтобы запускать zapret и устанавливать решения.</sys:String>
 
     <sys:String x:Key="Settings.Title">Настройки</sys:String>
     <sys:String x:Key="Settings.Integration">Сборка Flowseal</sys:String>
@@ -57,14 +57,14 @@
     <sys:String x:Key="Settings.Strategy">Стратегия</sys:String>
     <sys:String x:Key="Settings.NoStrategy">Не выбрана</sys:String>
     <sys:String x:Key="Settings.StrategyUnavailable">Сборка не подключена</sys:String>
-    <sys:String x:Key="Settings.StrategyNote">Выбор сохраняется между запусками.</sys:String>
+    <sys:String x:Key="Settings.StrategyNote">Выбор сохраняется. Запустить или сменить стратегию можно в разделе «Обзор».</sys:String>
     <sys:String x:Key="Settings.Diagnostics">Диагностика</sys:String>
     <sys:String x:Key="Settings.Behavior">Игры Steam</sys:String>
     <sys:String x:Key="Settings.AutoScan">Искать игры Steam при открытии раздела</sys:String>
     <sys:String x:Key="Settings.Onboarding">Мастер подключения</sys:String>
     <sys:String x:Key="Settings.ShowOnboarding">Какую папку выбрать?</sys:String>
     <sys:String x:Key="Settings.LocalData">Локальные данные</sys:String>
-    <sys:String x:Key="Settings.StoragePath">Папка хранения профилей</sys:String>
+    <sys:String x:Key="Settings.StoragePath">Папка хранения решений</sys:String>
     <sys:String x:Key="Settings.OpenData">Открыть папку данных</sys:String>
     <sys:String x:Key="Settings.About">О приложении</sys:String>
     <sys:String x:Key="Settings.Credit">Zapretiks работает со сборкой zapret-discord-youtube от Flowseal. Автор оригинального zapret — bol-van.</sys:String>

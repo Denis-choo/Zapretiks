@@ -22,6 +22,7 @@ internal sealed class LibraryViewModel : ViewModel
     private string? editorError;
     private bool isSaving;
     private bool previewRequested;
+    private bool workingWithFiles;
 
     public LibraryViewModel(Session session, IProfileTransfer transfer, IConfigurationPreview preview, ICommand openCatalog)
     {
@@ -29,23 +30,23 @@ internal sealed class LibraryViewModel : ViewModel
         this.transfer = transfer;
         this.preview = preview;
         OpenCatalogCommand = openCatalog;
-        ClearSelectionCommand = session.Command(() =>
-        {
-            previewRequested = true;
-            SelectedItem = null;
-            return Task.CompletedTask;
-        }, () => IsBrowsing);
         ToggleCommand = session.Command(parameter => ChangeProfileAsync(parameter, remove: false), CanChange);
         RemoveCommand = session.Command(parameter => ChangeProfileAsync(parameter, remove: true), CanChange);
         ImportCommand = session.Command(ImportAsync, () => session.CanSave && IsBrowsing);
         ExportCommand = session.Command(ExportAsync, parameter => IsBrowsing && (parameter is ProfileRow || SelectedItem is not null));
-        PrepareCommand = session.Command(PrepareAsync, () => IsBrowsing);
+        PrepareCommand = session.Command(PrepareAsync, () => IsBrowsing && !workingWithFiles);
         ReviewChangesCommand = session.Command(async () =>
         {
             previewRequested = true;
             SelectedItem = null;
+            Raise(nameof(ShowPreview));
             await PrepareAsync();
-        }, () => IsBrowsing && HasItems);
+        }, () => IsBrowsing && !workingWithFiles && (HasItems || HasConnectedInstallation));
+        ClearSelectionCommand = ReviewChangesCommand;
+        ApplyCommand = session.Command(() => WriteChangesAsync(undo: false), () =>
+            CanWrite && PreviewPlan?.CanApply == true);
+        UndoCommand = session.Command(() => WriteChangesAsync(undo: true), () =>
+            CanWrite && PreviewPlan?.CanUndo == true);
         CopyPreviewCommand = session.Action(() =>
         {
             if (PreviewPlan is null)
@@ -64,13 +65,12 @@ internal sealed class LibraryViewModel : ViewModel
     public IReadOnlyList<ProfileRow> Items => items;
     public bool HasItems => Items.Count > 0;
     public bool HasSelectedProfile => SelectedItem is not null;
-    public bool ShowPreview => HasItems && SelectedItem is null;
+    public bool ShowPreview => SelectedItem is null && (HasItems || previewRequested && HasConnectedInstallation);
+    private bool CanWrite => preview is IConfigurationEditor && IsBrowsing && !workingWithFiles && HasConnectedInstallation;
     public int CalculationProfileCount => Items.Count(item => item.IsEnabled && !item.IsDemo);
-    public string CalculationSelectionHint => Items.All(item => item.IsDemo)
-        ? "Для расчёта создайте профиль со своими адресами."
-        : CalculationProfileCount == 0
-            ? "Выберите профиль слева и включите его в расчёт."
-            : $"Профилей в расчёте: {CalculationProfileCount}.";
+    public string CalculationSelectionHint => CalculationProfileCount == 0
+        ? "Решения не выбраны. Можно убрать ранее добавленные ими адреса."
+        : $"Выбрано решений: {CalculationProfileCount}.";
     public bool HasConnectedInstallation => session.Installation is { IsValid: true };
     public ProfileRow? SelectedItem
     {
@@ -104,6 +104,7 @@ internal sealed class LibraryViewModel : ViewModel
             {
                 Raise(nameof(PreviewSummary));
                 Raise(nameof(PreviewChanges));
+                CommandManager.InvalidateRequerySuggested();
             }
         }
     }
@@ -113,12 +114,13 @@ internal sealed class LibraryViewModel : ViewModel
         {
             if (PreviewPlan is not { Files.Count: > 0 } plan)
                 return string.Empty;
-            var count = plan.Files.Sum(file => file.Additions.Count);
-            return count > 0 ? $"Будет добавлено адресов: {count}" : "Новых адресов нет";
+            var additions = plan.Files.Sum(file => file.Additions.Count);
+            var removals = plan.Files.Sum(file => file.Removals.Count);
+            return additions + removals == 0 ? "Изменений в списках нет" : $"Добавится адресов: {additions} · Уберётся: {removals}";
         }
     }
     public IReadOnlyList<PreviewChangeGroup> PreviewChanges => PreviewPlan?.Files
-        .Where(file => file.Additions.Count > 0)
+        .Where(file => file.Additions.Count + file.Removals.Count > 0)
         .Select(file => new PreviewChangeGroup(file.FileName switch
         {
             "list-general-user.txt" => "Сайты",
@@ -126,7 +128,7 @@ internal sealed class LibraryViewModel : ViewModel
             "ipset-all.txt" => "IP-адреса и подсети",
             "ipset-exclude-user.txt" => "Исключения IP",
             _ => "Другие адреса"
-        }, file.Additions))
+        }, file.Additions, file.Removals))
         .ToArray() ?? [];
     public ICommand CopyPreviewCommand { get; }
     public ICommand ChooseFolderCommand => session.ChooseFolderCommand;
@@ -137,6 +139,8 @@ internal sealed class LibraryViewModel : ViewModel
     public ICommand ExportCommand { get; }
     public ICommand PrepareCommand { get; }
     public ICommand ReviewChangesCommand { get; }
+    public ICommand ApplyCommand { get; }
+    public ICommand UndoCommand { get; }
     public ICommand OpenCatalogCommand { get; }
     public ICommand CreateCommand { get; }
     public ICommand EditCommand { get; }
@@ -177,13 +181,13 @@ internal sealed class LibraryViewModel : ViewModel
                 if (draft.OriginalProfile is null)
                 {
                     if (state.Profiles.Any(item => SameId(item.Profile.Id, profile.Id)))
-                        throw new InvalidOperationException("Такой профиль уже есть в библиотеке.");
+                        throw new InvalidOperationException("Такое решение уже есть в библиотеке.");
                     return state with { Profiles = [.. state.Profiles, new InstalledProfile(profile, IsEnabled: false)] };
                 }
 
                 var existing = state.Profiles.FirstOrDefault(item => SameId(item.Profile.Id, draft.OriginalProfile.Id));
                 if (existing is null || existing.Profile != draft.OriginalProfile || !ProfileEditorViewModel.CanEdit(existing.Profile))
-                    throw new InvalidOperationException("Профиль изменился во время редактирования. Скопируйте введённые данные и откройте профиль заново.");
+                    throw new InvalidOperationException("Решение изменилось во время редактирования. Скопируйте введённые данные и откройте решение заново.");
 
                 return state with
                 {
@@ -193,7 +197,7 @@ internal sealed class LibraryViewModel : ViewModel
             });
             Editor = null;
             SelectedItem = Items.First(item => SameId(item.Id, profile.Id));
-            StatusMessage = draft.IsNew ? "Профиль создан. Включите его в расчёт, чтобы проверить изменения." : "Изменения профиля сохранены.";
+            StatusMessage = draft.IsNew ? "Решение сохранено. Выберите его для установки, чтобы проверить адреса." : "Решение сохранено.";
             if (draft.ConvertedUrlCount > 0)
                 StatusMessage += $" Из ссылок сохранены только адреса сайтов ({draft.ConvertedUrlCount}).";
             RaiseEditingState();
@@ -203,9 +207,9 @@ internal sealed class LibraryViewModel : ViewModel
             EditorError = error switch
             {
                 InvalidDataException or InvalidOperationException or ArgumentException => error.Message,
-                UnauthorizedAccessException => "Не удалось сохранить профиль. Проверьте доступ к папке данных.",
-                IOException => "Не удалось сохранить профиль. Проверьте доступность папки данных и попробуйте ещё раз.",
-                _ => "Не удалось сохранить профиль. Подробности есть в журнале приложения."
+                UnauthorizedAccessException => "Не удалось сохранить решение. Проверьте доступ к папке данных.",
+                IOException => "Не удалось сохранить решение. Проверьте доступность папки данных и попробуйте ещё раз.",
+                _ => "Не удалось сохранить решение. Подробности есть в журнале приложения."
             };
             if (error is not (InvalidDataException or InvalidOperationException or ArgumentException))
                 session.Report(error);
@@ -237,10 +241,16 @@ internal sealed class LibraryViewModel : ViewModel
                 : state.Profiles.Select(item => SameId(row.Id, item.Profile.Id)
                     ? item with { IsEnabled = !item.IsEnabled } : item).ToArray()
         });
-        StatusMessage = remove ? $"«{row.Title}» удалён из библиотеки."
-            : row.IsEnabled ? $"«{row.Title}» исключён из расчёта." : $"«{row.Title}» будет учтён в расчёте.";
-        if (!remove && row.IsDemo)
-            StatusMessage = "Демонстрационные профили помогают изучить интерфейс. Для расчёта создайте свой профиль.";
+        if (remove && !row.IsDemo && HasConnectedInstallation)
+        {
+            previewRequested = true;
+            SelectedItem = null;
+            Raise(nameof(ShowPreview));
+            await PrepareAsync();
+        }
+        StatusMessage = remove ? $"Решение «{row.Title}» удалено из библиотеки."
+            : row.IsEnabled ? "Выбор снят. Проверьте изменения, чтобы убрать его адреса из сборки."
+            : "Решение выбрано. Проверьте изменения перед установкой.";
     }
 
     private async Task ImportAsync()
@@ -252,11 +262,11 @@ internal sealed class LibraryViewModel : ViewModel
         await session.UpdateAsync(state =>
         {
             if (state.Profiles.Any(item => SameId(profile.Id, item.Profile.Id)))
-                throw new InvalidOperationException("Профиль с таким идентификатором уже есть в библиотеке.");
+                throw new InvalidOperationException("Решение с таким идентификатором уже есть в библиотеке.");
             return state with { Profiles = [.. state.Profiles, new InstalledProfile(profile, IsEnabled: false)] };
         });
         SelectedItem = Items.First(item => SameId(item.Id, profile.Id));
-        StatusMessage = $"«{profile.Name}» импортирован.";
+        StatusMessage = $"Решение «{profile.Name}» импортировано.";
     }
 
     private async Task ExportAsync(object? parameter)
@@ -268,10 +278,65 @@ internal sealed class LibraryViewModel : ViewModel
         if (path is null)
             return;
         await transfer.ExportAsync(path, row.Profile);
-        StatusMessage = $"«{row.Title}» экспортирован.";
+        StatusMessage = $"Решение «{row.Title}» экспортировано.";
     }
 
     private async Task PrepareAsync()
+    {
+        if (workingWithFiles) return;
+        workingWithFiles = true;
+        try
+        {
+            PreviewPlan = null;
+            StatusMessage = "Проверяем списки…";
+            await RefreshPlanAsync();
+            StatusMessage = null;
+        }
+        finally
+        {
+            workingWithFiles = false;
+            if (PreviewPlan is null) StatusMessage = null;
+            CommandManager.InvalidateRequerySuggested();
+        }
+    }
+
+    private async Task WriteChangesAsync(bool undo)
+    {
+        if (preview is not IConfigurationEditor writer || PreviewPlan is not { } reviewed || !CanWrite)
+            return;
+        workingWithFiles = true;
+        StatusMessage = undo ? "Восстанавливаем списки…" : "Записываем изменения…";
+        try
+        {
+            await session.RunExclusiveAsync(async () =>
+            {
+                if (!ReferenceEquals(PreviewPlan, reviewed) || session.Installation is not { IsValid: true } installation)
+                    throw new InvalidOperationException("Параметры изменились. Проверьте списки ещё раз.");
+                if (undo)
+                    await writer.UndoAsync(installation, reviewed);
+                else
+                    await writer.ApplyAsync(installation, session.State.Settings.StrategyFile, session.State.Profiles, reviewed);
+                PreviewPlan = null;
+                StatusMessage = undo ? "Последнее изменение файлов отменено. Выбор решений сохранён."
+                    : "Изменения записаны в списки.";
+                StatusMessage += " Если zapret уже запущен, перезапустите его для загрузки списков.";
+                await RefreshPlanAsync();
+            });
+        }
+        catch
+        {
+            PreviewPlan = null;
+            StatusMessage = "Обновите список изменений перед следующей операцией.";
+            throw;
+        }
+        finally
+        {
+            workingWithFiles = false;
+            CommandManager.InvalidateRequerySuggested();
+        }
+    }
+
+    private async Task RefreshPlanAsync()
     {
         var state = session.State;
         var installation = session.Installation;
@@ -288,13 +353,14 @@ internal sealed class LibraryViewModel : ViewModel
                 : $"Файл отсутствует. Предложено записей: {file.Additions.Count}.");
             foreach (var entry in file.Additions)
                 text.AppendLine($"+ {entry}");
+            foreach (var entry in file.Removals)
+                text.AppendLine($"− {entry}");
             text.AppendLine();
         }
         foreach (var warning in plan.Warnings)
             text.AppendLine($"• {warning}");
         PreviewText = text.Length == 0 ? "Для текущего набора изменений нет." : text.ToString().TrimEnd();
         PreviewPlan = plan;
-        StatusMessage = null;
     }
 
     private void Refresh()
@@ -325,6 +391,7 @@ internal sealed class LibraryViewModel : ViewModel
             StatusMessage = null;
         }
         Raise(nameof(HasConnectedInstallation));
+        Raise(nameof(ShowPreview));
         observedProfiles = state.Profiles;
         observedInstallation = session.Installation;
         observedStrategy = state.Settings.StrategyFile;
@@ -334,7 +401,8 @@ internal sealed class LibraryViewModel : ViewModel
         string.Equals(first, second, StringComparison.OrdinalIgnoreCase);
 }
 
-internal sealed record PreviewChangeGroup(string Label, IReadOnlyList<string> Values)
+internal sealed record PreviewChangeGroup(string Label, IReadOnlyList<string> Additions, IReadOnlyList<string> Removals)
 {
-    public string Lines => string.Join(Environment.NewLine, Values);
+    public string Lines => string.Join(Environment.NewLine,
+        Additions.Select(address => $"+ {address}").Concat(Removals.Select(address => $"− {address}")));
 }

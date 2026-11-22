@@ -18,7 +18,7 @@ internal abstract class IntegrationViewModel : ViewModel
     protected Session Session { get; }
     public ICommand ChooseFolderCommand => Session.ChooseFolderCommand;
     public bool HasConnectedInstallation => Session.Installation is { IsValid: true };
-    public bool CanSelectStrategy => HasConnectedInstallation && Session.CanSave && !savingStrategy;
+    public bool CanSelectStrategy => HasConnectedInstallation && Session.CanSave && !savingStrategy && !Session.IsRuntimeBusy;
     public IReadOnlyList<string> Strategies { get; private set; } = [];
 
     public string? SelectedStrategy
@@ -117,6 +117,8 @@ internal sealed class HomeViewModel : IntegrationViewModel
             Raise(nameof(IsCheckingStatus));
             Raise(nameof(IsRunning));
             Raise(nameof(IsStatusWarning));
+            Raise(nameof(HasManagedRun));
+            Raise(nameof(ShowSwitch));
             Raise(nameof(FolderDisplay));
             Raise(nameof(InstalledCount));
             Raise(nameof(HasProfiles));
@@ -127,24 +129,29 @@ internal sealed class HomeViewModel : IntegrationViewModel
     }
 
     public bool IsCheckingStatus => Session.IsCheckingStatus;
+    public bool HasManagedRun => Session.ManagedRun is not null;
+    public bool ShowSwitch => Session.ManagedRun is { } run && SelectedStrategy is { } selected &&
+        !string.Equals(selected, run.StrategyFile, StringComparison.OrdinalIgnoreCase);
     public bool HasConfiguredFolder => Session.State.Settings.ZapretDirectory is not null;
     public bool IsRunning => !IsCheckingStatus && Session.RuntimeStatus.State == ZapretRuntimeState.Running;
     public bool IsStatusWarning => !IsCheckingStatus && (Session.RuntimeStatus.State is
         ZapretRuntimeState.Unknown or ZapretRuntimeState.Unavailable ||
         Session.RuntimeStatus.MatchingProcessCount > 1 || Session.RuntimeStatus.OtherProcessCount > 0 ||
         Session.RuntimeStatus.UnresolvedProcessCount > 0);
-    public string StatusText => IsCheckingStatus ? "Проверяем состояние…" : Session.RuntimeStatus.State switch
+    public string StatusText => Session.RuntimeOperation ?? (IsCheckingStatus ? "Проверяем состояние…" : Session.RuntimeStatus.State switch
     {
         ZapretRuntimeState.Disconnected => "Подключите папку zapret",
         ZapretRuntimeState.Unavailable => "Проверьте папку zapret",
-        ZapretRuntimeState.Running => "Процесс запущен",
+        ZapretRuntimeState.Running => HasManagedRun ? "Запущен" : "Запущен вне Zapretiks",
         ZapretRuntimeState.NotRunning => "Не запущен",
         _ => "Статус неизвестен"
-    };
+    });
     public string StatusDetail
     {
         get
         {
+            if (Session.RuntimeOperation is not null)
+                return SelectedStrategy ?? "";
             if (IsCheckingStatus)
                 return "Проверяем файлы сборки и процессы winws.exe.";
 
@@ -153,16 +160,20 @@ internal sealed class HomeViewModel : IntegrationViewModel
             {
                 ZapretRuntimeState.Disconnected => "Выберите папку сборки Flowseal для проверки её состояния.",
                 ZapretRuntimeState.Unavailable => "Папка недоступна или в ней отсутствуют необходимые компоненты.",
-                ZapretRuntimeState.Running when status.MatchingProcessCount > 1 =>
-                    $"Из подключённой папки запущено несколько процессов winws.exe ({status.MatchingProcessCount}).",
-                ZapretRuntimeState.Running => "Найден запущенный winws.exe из подключённой папки.",
-                ZapretRuntimeState.NotRunning => "Запущенный winws.exe из подключённой папки не найден.",
+                ZapretRuntimeState.Running when Session.ManagedRun is { } run =>
+                    $"Работает {run.StrategyFile}. При закрытии Zapretiks эта стратегия остановится.",
+                ZapretRuntimeState.Running => "Завершите внешний запуск zapret, чтобы управлять им здесь.",
+                ZapretRuntimeState.NotRunning when status.OtherProcessCount > 0 =>
+                    "Сначала остановите zapret в другой папке и обновите статус.",
+                ZapretRuntimeState.NotRunning => "Запустите выбранную стратегию из вашей сборки Flowseal.",
                 _ when status.AccessDeniedProcessCount > 0 || status.EnumerationAccessDenied =>
                     "Windows ограничила доступ к данным процессов. Принадлежность подключённой папке не подтверждена.",
                 _ => "Не удалось подтвердить состояние процесса. Повторите проверку."
             };
 
-            if (status.OtherProcessCount > 0)
+            if (status.MatchingProcessCount > 1 && HasManagedRun)
+                detail += " Из этой же папки работает ещё один процесс.";
+            if (status.OtherProcessCount > 0 && status.State != ZapretRuntimeState.NotRunning)
                 detail += $" Процессы winws.exe из других папок: {status.OtherProcessCount}.";
             if (status.State == ZapretRuntimeState.Running && status.UnresolvedProcessCount > 0)
                 detail += $" Процессы с недоступными данными: {status.UnresolvedProcessCount}.";
@@ -174,6 +185,9 @@ internal sealed class HomeViewModel : IntegrationViewModel
         ? $"Проверено в {timestamp.ToLocalTime():HH:mm:ss}" : "";
     public string FolderDisplay => Session.Installation?.Directory ?? "";
     public ICommand RefreshStatusCommand => Session.RefreshStatusCommand;
+    public ICommand StartCommand => Session.StartCommand;
+    public ICommand StopCommand => Session.StopCommand;
+    public ICommand SwitchCommand => Session.SwitchCommand;
     public int InstalledCount => Session.State.Profiles.Length;
     public bool HasProfiles => InstalledCount > 0;
     public int EnabledCount => Session.State.Profiles.Count(item => item.IsEnabled);

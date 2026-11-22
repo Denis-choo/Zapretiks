@@ -59,11 +59,11 @@ public sealed class JsonUserStore : IUserStore
     private static UserState NormalizeState(UserState state)
     {
         if (state.Settings is null || state.Profiles is null || state.Profiles.Length > MaxProfiles)
-            throw new InvalidDataException($"Библиотека должна содержать настройки и до {MaxProfiles} профилей.");
+            throw new InvalidDataException($"Библиотека должна содержать настройки и до {MaxProfiles} решений.");
 
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var profiles = state.Profiles.Select(profile => profile is null
-            ? throw new InvalidDataException("В библиотеке найден пустой профиль.")
+            ? throw new InvalidDataException("В библиотеке найден пустое решение.")
             : profile with { Profile = ProfileJson.NormalizeUnique(profile.Profile, seen) }).ToArray();
         return state with { Profiles = profiles };
     }
@@ -104,11 +104,11 @@ internal static class ProfileJson
     public static SolutionProfile NormalizeUnique(SolutionProfile? profile, HashSet<string> seen)
     {
         if (profile is null)
-            throw new InvalidDataException("В данных найден пустой профиль.");
+            throw new InvalidDataException("В данных найден пустое решение.");
 
         var normalized = ProfileValidation.Normalize(profile);
         if (!seen.Add(normalized.Id))
-            throw new InvalidDataException($"Профиль с идентификатором «{normalized.Id}» уже существует.");
+            throw new InvalidDataException($"Решение с идентификатором «{normalized.Id}» уже существует.");
 
         return normalized;
     }

@@ -22,17 +22,20 @@ public sealed class FlowsealConfigurationPreview : IConfigurationPreview
         IEnumerable<InstalledProfile> profiles, CancellationToken cancellationToken = default) =>
         Task.Run(() => BuildPlanAsync(installation, strategyFile, profiles, cancellationToken), cancellationToken);
 
-    private static async Task<ConfigurationPlan> BuildPlanAsync(ZapretInstallation? installation, string? strategyFile,
-        IEnumerable<InstalledProfile> profiles, CancellationToken cancellationToken)
+    internal static IReadOnlyList<string> FileNames { get; } = Targets.Select(target => target.FileName).ToArray();
+
+    internal static async Task<ConfigurationPlan> BuildPlanAsync(ZapretInstallation? installation, string? strategyFile,
+        IEnumerable<InstalledProfile> profiles, CancellationToken cancellationToken,
+        IReadOnlyDictionary<string, string?>? baseline = null, string? checkedStrategy = null)
     {
         if (installation is not { IsValid: true })
-            return new([], ["Подключите папку Flowseal, чтобы сравнить профили со списками."]);
+            return new([], ["Подключите папку Flowseal, чтобы сравнить решения со списками."]);
 
         var warnings = new List<string>();
         var enabled = profiles.Where(item => item.IsEnabled).Select(item => item.Profile).ToArray();
         var demoCount = enabled.Count(profile => profile.IsDemo);
         if (demoCount > 0)
-            warnings.Add($"Демонстрационные профили исключены из плана ({demoCount}).");
+            warnings.Add($"Демонстрационные решения исключены из плана ({demoCount}).");
 
         var strategy = installation.Strategies.FirstOrDefault(item =>
             StringComparer.OrdinalIgnoreCase.Equals(item.FileName, strategyFile));
@@ -40,10 +43,12 @@ public sealed class FlowsealConfigurationPreview : IConfigurationPreview
         var compatible = realProfiles.Where(profile => profile.CompatibleStrategies.Length == 0 ||
             profile.CompatibleStrategies.Contains(strategy?.FileName, StringComparer.OrdinalIgnoreCase)).ToArray();
         if (compatible.Length < realProfiles.Length)
-            warnings.Add($"Исключены профили, требующие другой стратегии ({realProfiles.Length - compatible.Length}).");
+            warnings.Add($"Исключены решения, требующие другой стратегии ({realProfiles.Length - compatible.Length}).");
 
         string? strategyText = null;
-        if (strategy is not null && ProfileValidation.IsStrategyFileName(strategy.FileName))
+        if (baseline is not null)
+            strategyText = checkedStrategy;
+        else if (strategy is not null && ProfileValidation.IsStrategyFileName(strategy.FileName))
         {
             try
             {
@@ -63,7 +68,7 @@ public sealed class FlowsealConfigurationPreview : IConfigurationPreview
         foreach (var target in Targets)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            results.Add(await PreviewListAsync(listsPath, target, compatible, strategyText, warnings, cancellationToken)
+            results.Add(await PreviewListAsync(listsPath, target, compatible, strategyText, warnings, cancellationToken, baseline)
                 .ConfigureAwait(false));
         }
 
@@ -86,15 +91,18 @@ public sealed class FlowsealConfigurationPreview : IConfigurationPreview
     }
 
     private static async Task<ListResult> PreviewListAsync(string directory, ListTarget target, SolutionProfile[] profiles,
-        string? strategyText, List<string> warnings, CancellationToken cancellationToken)
+        string? strategyText, List<string> warnings, CancellationToken cancellationToken,
+        IReadOnlyDictionary<string, string?>? baseline)
     {
         var path = Path.Combine(directory, target.FileName);
         var exists = false;
         string? contents = null;
         try
         {
-            contents = await LocalFile.ReadTextAsync(path, MaxListBytes, cancellationToken).ConfigureAwait(false);
-            exists = true;
+            contents = baseline is null
+                ? await LocalFile.ReadTextAsync(path, MaxListBytes, cancellationToken).ConfigureAwait(false)
+                : baseline[target.FileName];
+            exists = contents is not null;
         }
         catch (FileNotFoundException) { }
         catch (Exception exception) when (LocalFile.IsReadError(exception))

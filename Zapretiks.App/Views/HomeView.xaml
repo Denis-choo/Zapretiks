@@ -6,6 +6,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="IntegrationParts.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanVisibility" />
             <Style x:Key="ConfiguredContent" TargetType="StackPanel">
                 <Setter Property="Visibility" Value="Collapsed" />
                 <Style.Triggers>
@@ -156,6 +157,8 @@
                                     <Button Content="{DynamicResource Home.GoToCatalog}" Command="{Binding OpenCatalogCommand}"
                                             Style="{StaticResource GhostButton}" Margin="0,0,0,6" />
                                 </WrapPanel>
+                                <Button Content="{DynamicResource Home.PreviewChanges}" Command="{Binding OpenPreviewCommand}"
+                                        Style="{StaticResource GhostButton}" HorizontalAlignment="Left" Margin="0,2,0,0" />
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -189,37 +192,34 @@
                                        FontSize="28" FontWeight="Bold" LineHeight="35" TextWrapping="Wrap" />
                         </Grid>
                         <TextBlock Text="{Binding StatusDetail}" Style="{StaticResource BodyText}" Margin="18,8,0,0" />
-                        <Button Command="{Binding RefreshStatusCommand}" MinWidth="115"
-                                HorizontalAlignment="Left" Margin="18,14,0,0">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-                                    <Setter Property="Content" Value="{DynamicResource Home.RefreshStatus}" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsCheckingStatus}" Value="True">
-                                            <Setter Property="Content" Value="{DynamicResource Home.CheckingStatus}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-                        <TextBlock Text="{Binding StatusCheckedAt}" Style="{StaticResource CaptionText}" Margin="18,6,0,0" />
-
-                        <Border BorderBrush="{StaticResource SubtleBorderBrush}" BorderThickness="0,1,0,0"
-                                Margin="0,20,0,0" Padding="0,16,0,0">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource Home.Strategy}" Style="{StaticResource WorkspaceRowTitle}"
-                                           AutomationProperties.HeadingLevel="Level2" />
-                                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource StrategyPickerTemplate}"
-                                                HorizontalContentAlignment="Stretch" Margin="0,9,0,0" />
-                                <TextBlock Text="{DynamicResource Home.StrategyNote}" Style="{StaticResource CaptionText}"
-                                           TextWrapping="Wrap" Margin="0,6,0,0" />
-                                <Button Content="{DynamicResource Home.PreviewChanges}" Command="{Binding OpenPreviewCommand}"
-                                        IsEnabled="{Binding HasConnectedInstallation}" Style="{StaticResource SecondaryButton}"
-                                        HorizontalAlignment="Left" Margin="0,14,0,0" />
-                                <TextBlock Text="{DynamicResource Home.PreviewNote}" Style="{StaticResource CaptionText}"
-                                           TextWrapping="Wrap" Margin="0,8,0,0" />
-                            </StackPanel>
-                        </Border>
+                        <TextBlock Text="{DynamicResource Home.Strategy}" Style="{StaticResource WorkspaceRowTitle}"
+                                   Margin="0,24,0,0" />
+                        <ContentControl Content="{Binding}" ContentTemplate="{StaticResource StrategyPickerTemplate}"
+                                        HorizontalContentAlignment="Stretch" Margin="0,8,0,0" />
+                        <WrapPanel Margin="0,14,0,0">
+                            <Button Content="Запустить zapret" Command="{Binding StartCommand}" Margin="0,0,8,6">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasManagedRun}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Content="Сменить стратегию" Command="{Binding SwitchCommand}"
+                                    Visibility="{Binding ShowSwitch, Converter={StaticResource BooleanVisibility}}"
+                                    Style="{StaticResource PrimaryButton}" Margin="0,0,8,6" />
+                            <Button Content="Остановить zapret" Command="{Binding StopCommand}"
+                                    Visibility="{Binding HasManagedRun, Converter={StaticResource BooleanVisibility}}"
+                                    Style="{StaticResource SecondaryButton}" Margin="0,0,8,6" />
+                        </WrapPanel>
+                        <WrapPanel Margin="0,10,0,0">
+                            <Button Content="{DynamicResource Home.RefreshStatus}" Command="{Binding RefreshStatusCommand}"
+                                    Style="{StaticResource GhostButton}" Margin="0,0,8,0" />
+                            <TextBlock Text="{Binding StatusCheckedAt}" Style="{StaticResource CaptionText}" VerticalAlignment="Center" />
+                        </WrapPanel>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>

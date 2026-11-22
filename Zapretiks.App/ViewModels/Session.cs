@@ -13,6 +13,7 @@ internal sealed class Session
     private readonly IUserStore store;
     private readonly IZapretInspector inspector;
     private readonly IZapretRuntimeInspector runtimeInspector;
+    private readonly IZapretRuntimeController runtimeController;
     private readonly LocalLog log;
     private readonly SemaphoreSlim stateGate = new(1);
     private bool canSave;
@@ -22,16 +23,24 @@ internal sealed class Session
 
     public Session(IUserStore store, IZapretInspector inspector, DesktopDialogs dialogs, LocalLog log,
         IZapretRuntimeInspector runtimeInspector)
+        : this(store, inspector, dialogs, log, runtimeInspector, new FlowsealRuntimeController()) { }
+
+    public Session(IUserStore store, IZapretInspector inspector, DesktopDialogs dialogs, LocalLog log,
+        IZapretRuntimeInspector runtimeInspector, IZapretRuntimeController runtimeController)
     {
         this.store = store;
         this.inspector = inspector;
         this.runtimeInspector = runtimeInspector;
+        this.runtimeController = runtimeController;
         this.log = log;
         Dialogs = dialogs;
-        ChooseFolderCommand = Command(ChooseFolderAsync, () => canSave);
+        ChooseFolderCommand = Command(ChooseFolderAsync, () => CanChooseFolder);
         RefreshStatusCommand = Command(RefreshIntegrationAsync,
-            () => State.Settings.ZapretDirectory is not null && !IsCheckingStatus);
+            () => State.Settings.ZapretDirectory is not null && !IsRuntimeBusy);
         RefreshIntegrationCommand = RefreshStatusCommand;
+        StartCommand = Command(() => ControlRuntimeAsync(RuntimeAction.Start), () => CanStart);
+        SwitchCommand = Command(() => ControlRuntimeAsync(RuntimeAction.Switch), () => CanSwitch);
+        StopCommand = Command(() => ControlRuntimeAsync(RuntimeAction.Stop), () => ManagedRun is not null && !IsRuntimeBusy);
         OpenDataFolderCommand = Action(() =>
         {
             Directory.CreateDirectory(DataDirectory);
@@ -46,15 +55,36 @@ internal sealed class Session
     public ZapretInstallation? Installation { get; private set; }
     public ZapretRuntimeStatus RuntimeStatus { get; private set; } = new(ZapretRuntimeState.Disconnected);
     public bool IsCheckingStatus { get; private set; }
+    public ManagedZapretRun? ManagedRun { get; private set; }
+    public string? RuntimeOperation { get; private set; }
+    public bool IsRuntimeBusy => IsCheckingStatus || RuntimeOperation is not null;
+    public bool CanChooseFolder => canSave && !IsRuntimeBusy && ManagedRun is null;
+    private bool HasSelectedStrategy => Installation is { IsValid: true } install &&
+        install.Strategies.Any(strategy => string.Equals(strategy.FileName, State.Settings.StrategyFile, StringComparison.OrdinalIgnoreCase));
+    private bool CanStart => !IsRuntimeBusy && ManagedRun is null && HasSelectedStrategy &&
+        RuntimeStatus is { State: ZapretRuntimeState.NotRunning, OtherProcessCount: 0, UnresolvedProcessCount: 0 };
+    private bool CanSwitch => !IsRuntimeBusy && ManagedRun is { } run && HasSelectedStrategy &&
+        RuntimeStatus is { State: ZapretRuntimeState.Running, MatchingProcessCount: 1, OtherProcessCount: 0, UnresolvedProcessCount: 0 } &&
+        !string.Equals(run.StrategyFile, State.Settings.StrategyFile, StringComparison.OrdinalIgnoreCase);
     public IReadOnlyList<string> RejectedFolderDiagnostics { get; private set; } = [];
     public string DataDirectory => store.DataDirectory;
     public ICommand ChooseFolderCommand { get; }
     public ICommand RefreshIntegrationCommand { get; }
     public ICommand RefreshStatusCommand { get; }
+    public ICommand StartCommand { get; }
+    public ICommand StopCommand { get; }
+    public ICommand SwitchCommand { get; }
     public ICommand OpenDataFolderCommand { get; }
     public ICommand OpenUpstreamCommand { get; }
     public event Action? Changed;
     public event Action<string, NotificationKind>? Notification;
+
+    public void CheckManagedRun()
+    {
+        if (ManagedRun is not null && !IsRuntimeBusy && runtimeController.Current is null &&
+            RefreshStatusCommand.CanExecute(null))
+            RefreshStatusCommand.Execute(null);
+    }
 
     public async Task InitializeAsync()
     {
@@ -132,6 +162,8 @@ internal sealed class Session
 
     public async Task<bool> ChooseFolderAsync()
     {
+        if (!CanChooseFolder)
+            return false;
         var folder = Dialogs.ChooseFolder();
         if (folder is null)
             return false;
@@ -139,6 +171,11 @@ internal sealed class Session
         await stateGate.WaitAsync();
         try
         {
+            if (runtimeController.Current is not null)
+            {
+                Notify("Сначала остановите zapret в разделе «Обзор».", NotificationKind.Warning);
+                return false;
+            }
             var result = await inspector.InspectAsync(folder);
             if (!result.IsValid)
             {
@@ -174,6 +211,54 @@ internal sealed class Session
         }
     }
 
+    public async Task RunExclusiveAsync(Func<Task> operation)
+    {
+        await stateGate.WaitAsync();
+        try { await operation(); }
+        finally { stateGate.Release(); }
+    }
+
+    private enum RuntimeAction { Start, Switch, Stop }
+
+    private async Task ControlRuntimeAsync(RuntimeAction action)
+    {
+        // Capture the user's choice before queued changes to the folder or strategy are saved.
+        var directory = Installation?.Directory;
+        var strategy = State.Settings.StrategyFile;
+        await RunExclusiveAsync(async () =>
+        {
+            if (action != RuntimeAction.Stop && (!HasSelectedStrategy ||
+                !StringComparer.OrdinalIgnoreCase.Equals(directory, Installation?.Directory) ||
+                !StringComparer.OrdinalIgnoreCase.Equals(strategy, State.Settings.StrategyFile)))
+            {
+                Notify("Выбор стратегии изменился. Повторите запуск.", NotificationKind.Warning);
+                return;
+            }
+            RuntimeOperation = action switch
+            {
+                RuntimeAction.Start => "Запускаем zapret…",
+                RuntimeAction.Switch => "Меняем стратегию…",
+                _ => "Останавливаем zapret…"
+            };
+            Publish();
+            try
+            {
+                var result = action switch
+                {
+                    RuntimeAction.Start => await runtimeController.StartAsync(Installation!, strategy!),
+                    RuntimeAction.Switch => await runtimeController.SwitchAsync(Installation!, strategy!),
+                    _ => await runtimeController.StopAsync()
+                };
+                Notify(result.Message, result.Succeeded ? NotificationKind.Success : NotificationKind.Warning);
+            }
+            finally
+            {
+                RuntimeOperation = null;
+                await CheckIntegrationAsync();
+            }
+        });
+    }
+
     private async Task RefreshIntegrationAsync()
     {
         await stateGate.WaitAsync();
@@ -206,6 +291,7 @@ internal sealed class Session
         }
         finally
         {
+            ManagedRun = runtimeController.Current;
             IsCheckingStatus = false;
             Publish();
         }

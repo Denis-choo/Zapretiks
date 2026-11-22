@@ -17,11 +17,20 @@ public sealed record ConfigurationFilePlan(
     string FileName,
     bool Exists,
     int ExistingCount,
-    IReadOnlyList<string> Additions);
+    IReadOnlyList<string> Additions)
+{
+    public IReadOnlyList<string> Removals { get; init; } = [];
+}
 
 public sealed record ConfigurationPlan(
     IReadOnlyList<ConfigurationFilePlan> Files,
-    IReadOnlyList<string> Warnings);
+    IReadOnlyList<string> Warnings)
+{
+    public bool CanApply { get; init; }
+    public bool CanUndo { get; init; }
+    public string? Revision { get; init; }
+    public string? UndoRevision { get; init; }
+}
 
 public sealed record SteamGame(uint AppId, string Name, string InstallPath);
 
@@ -42,6 +51,13 @@ public interface IConfigurationPreview
         string? strategyFile,
         IEnumerable<InstalledProfile> profiles,
         CancellationToken cancellationToken = default);
+}
+
+public interface IConfigurationEditor : IConfigurationPreview
+{
+    Task ApplyAsync(ZapretInstallation installation, string? strategyFile, IEnumerable<InstalledProfile> profiles,
+        ConfigurationPlan reviewed, CancellationToken cancellationToken = default);
+    Task UndoAsync(ZapretInstallation installation, ConfigurationPlan reviewed, CancellationToken cancellationToken = default);
 }
 
 public interface ISteamScanner

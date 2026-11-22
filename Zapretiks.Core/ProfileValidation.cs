@@ -12,7 +12,7 @@ public static class ProfileValidation
     {
         ArgumentNullException.ThrowIfNull(profile);
         if (profile.SchemaVersion != 1)
-            throw new InvalidDataException($"Формат профиля версии {profile.SchemaVersion} пока не поддерживается.");
+            throw new InvalidDataException($"Формат решения версии {profile.SchemaVersion} пока не поддерживается.");
 
         var id = ReadText(profile.Id, "Идентификатор", 80);
         if (!char.IsAsciiLetterOrDigit(id[0]) ||
@@ -22,7 +22,7 @@ public static class ProfileValidation
         }
 
         if (!Enum.IsDefined(profile.Category) || profile.UpdatedAt == default)
-            throw new InvalidDataException("Укажите допустимую категорию и дату обновления профиля.");
+            throw new InvalidDataException("Укажите допустимую категорию и дату обновления решения.");
 
         var includes = NormalizeList(profile.IncludeNetworks, NormalizeNetwork, "IP-адреса");
         if (includes.Contains(DisabledIpsetMarker, StringComparer.Ordinal))

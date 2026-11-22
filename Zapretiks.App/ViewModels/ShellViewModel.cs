@@ -29,7 +29,7 @@ internal sealed class ShellViewModel : ViewModel
         {
             if (await session.ChooseFolderAsync())
                 IsOnboarding = false;
-        }, () => session.CanSave);
+        }, () => session.CanChooseFolder);
         SkipOnboardingCommand = session.Action(() => IsOnboarding = false);
         var showOnboarding = session.Action(() => IsOnboarding = true);
         var openCatalog = session.Action(() => Navigate("Catalog"));
@@ -41,7 +41,7 @@ internal sealed class ShellViewModel : ViewModel
             Navigate("Library");
             if (library.IsBrowsing)
                 return true;
-            session.Notify("Сохраните или отмените открытый черновик профиля.");
+            session.Notify("Сохраните или отмените открытый черновик решения.");
             return false;
         }
         var createProfile = session.Command(() =>
@@ -55,7 +55,7 @@ internal sealed class ShellViewModel : ViewModel
             if (OpenLibraryForAction())
                 library.ReviewChangesCommand.Execute(null);
             return Task.CompletedTask;
-        }, () => library.HasItems);
+        }, () => library.HasItems || library.HasConnectedInstallation);
         catalog = new CatalogViewModel(session, catalogService, id =>
         {
             if (OpenLibraryForAction())
@@ -80,7 +80,7 @@ internal sealed class ShellViewModel : ViewModel
         [
             ("Home", "Обзор", home),
             ("Catalog", "Каталог", catalog),
-            ("Library", "Мои профили", library),
+            ("Library", "Мои решения", library),
             ("Games", "Игры Steam", games),
             ("Settings", "Настройки", settings)
         ];

@@ -37,7 +37,7 @@
     "updatedAt": "2026-11-12",
     "isDemo": true,
     "includeDomains": ["login.pixelharbor.test", "world.pixelharbor.test"],
-    "compatibilityNotes": "Записи предназначены для знакомства с форматом профилей."
+    "compatibilityNotes": "Записи предназначены для знакомства с форматом решений."
   },
   {
     "id": "demo-framewave",

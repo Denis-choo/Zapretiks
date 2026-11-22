@@ -96,7 +96,7 @@ internal sealed class CatalogViewModel : ViewModel
         {
             var current = state.Profiles.FirstOrDefault(item => SameId(row, item.Profile));
             if (current is not null && (!row.IsInstalled || current.Profile.Source != row.Profile.Source))
-                throw new InvalidOperationException("Профиль с этим идентификатором уже есть в библиотеке.");
+                throw new InvalidOperationException("Решение с этим идентификатором уже есть в библиотеке.");
             return state with
             {
                 Profiles = row.IsInstalled
@@ -104,7 +104,7 @@ internal sealed class CatalogViewModel : ViewModel
                     : [.. state.Profiles, new InstalledProfile(row.Profile, IsEnabled: false)]
             };
         });
-        StatusMessage = row.IsInstalled ? $"«{row.Title}» удалён из библиотеки." : $"«{row.Title}» добавлен в библиотеку.";
+        StatusMessage = row.IsInstalled ? $"Решение «{row.Title}» удалено из библиотеки." : $"Решение «{row.Title}» сохранено в библиотеке.";
     }
 
     private void Refresh()

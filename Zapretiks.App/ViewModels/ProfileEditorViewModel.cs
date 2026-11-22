@@ -29,7 +29,7 @@ internal sealed class ProfileEditorViewModel
     public SolutionProfile? OriginalProfile { get; }
     public bool IsNew => OriginalProfile is null;
     public int ConvertedUrlCount { get; private set; }
-    public string Title => IsNew ? "Новый профиль" : "Изменить профиль";
+    public string Title => IsNew ? "Новое решение" : "Изменить решение";
     public string Name { get; set; }
     public string Description { get; set; }
     public string Author { get; set; }
@@ -49,7 +49,7 @@ internal sealed class ProfileEditorViewModel
     public SolutionProfile Validate()
     {
         if (string.IsNullOrWhiteSpace(Name))
-            throw new InvalidDataException("Введите название профиля.");
+            throw new InvalidDataException("Введите название решения.");
 
         var category = CategoryLabel switch
         {
@@ -71,7 +71,7 @@ internal sealed class ProfileEditorViewModel
             SchemaVersion = OriginalProfile?.SchemaVersion ?? 1,
             Id = profileId,
             Name = Name,
-            Description = string.IsNullOrWhiteSpace(Description) ? $"Локальный профиль «{Name.Trim()}»." : Description,
+            Description = string.IsNullOrWhiteSpace(Description) ? $"Локальное решение «{Name.Trim()}»." : Description,
             Author = string.IsNullOrWhiteSpace(Author) ? "Пользователь" : Author,
             Version = string.IsNullOrWhiteSpace(Version) ? "1.0.0" : Version,
             Source = OriginalProfile?.Source ?? LocalSource,
