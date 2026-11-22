@@ -198,8 +198,22 @@
     </Style>
     <DataTemplate x:Key="ProfileIntro">
         <StackPanel>
-            <TextBlock Style="{DynamicResource PageTitleText}" Text="{Binding Title}" TextWrapping="Wrap"
-                       FontSize="32" AutomationProperties.HeadingLevel="Level2" />
+            <DockPanel>
+                <Image DockPanel.Dock="Right" Source="{Binding Cover}" Width="54" Height="46"
+                       Stretch="Uniform" Margin="12,0,0,0" VerticalAlignment="Top">
+                    <Image.Style>
+                        <Style TargetType="Image">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Cover}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Image.Style>
+                </Image>
+                <TextBlock Style="{DynamicResource PageTitleText}" Text="{Binding Title}" TextWrapping="Wrap"
+                           FontSize="28" AutomationProperties.HeadingLevel="Level2" VerticalAlignment="Center" />
+            </DockPanel>
             <TextBlock Style="{DynamicResource BodyText}" Text="{Binding Description}" FontSize="15"
                        LineHeight="23" TextWrapping="Wrap" Margin="0,9,0,16" />
             <Border Margin="0,0,0,14">

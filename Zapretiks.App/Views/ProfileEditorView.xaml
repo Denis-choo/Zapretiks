@@ -120,14 +120,59 @@
                     <TextBlock Text="{DynamicResource Library.EditorListHint}" Style="{DynamicResource BodyText}" TextWrapping="Wrap" Margin="0,8,0,0" />
                     <TextBlock Text="{DynamicResource Library.EditorUrlHint}" Style="{DynamicResource CaptionText}" TextWrapping="Wrap" Margin="0,6,0,0" />
                 </StackPanel>
+                <StackPanel Style="{StaticResource EditorField}">
+                    <Label Content="{DynamicResource Library.EditorDescription}" Target="{Binding ElementName=DescriptionField}" Style="{StaticResource EditorLabel}" />
+                    <TextBox x:Name="DescriptionField" Text="{Binding Editor.Description, UpdateSourceTrigger=PropertyChanged}"
+                             AcceptsReturn="True" Height="78" MaxLength="2000" TextWrapping="Wrap" VerticalContentAlignment="Top"
+                             VerticalScrollBarVisibility="Auto" AutomationProperties.Name="{DynamicResource Library.EditorDescription}" />
+                </StackPanel>
+                <StackPanel Style="{StaticResource EditorField}">
+                    <Label Content="Обложка (необязательно)" Target="{Binding ElementName=ChooseCoverButton}" Style="{StaticResource EditorLabel}" />
+                    <TextBlock Text="Прикрепите логотип игры, сервиса или оператора, к которому относится решение. PNG или JPEG."
+                               Style="{DynamicResource CaptionText}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                    <Image Source="{Binding Editor.Cover}" Height="76" MaxWidth="180" Stretch="Uniform"
+                           HorizontalAlignment="Left" Margin="0,0,0,10" AutomationProperties.Name="Предпросмотр обложки">
+                        <Image.Style>
+                            <Style TargetType="Image">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Editor.Cover}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                    <WrapPanel>
+                        <Button x:Name="ChooseCoverButton" Content="{Binding Editor.ChooseCoverLabel}" Command="{Binding Editor.ChooseCoverCommand}"
+                                Style="{DynamicResource SecondaryButton}" Margin="0,0,6,5" />
+                        <Button Content="Убрать обложку" Command="{Binding Editor.RemoveCoverCommand}" Margin="0,0,0,5">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource GhostButton}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Editor.HasCover}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </WrapPanel>
+                    <TextBlock Text="{Binding Editor.CoverError}" AutomationProperties.LiveSetting="Polite" TextWrapping="Wrap">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
+                                <Setter Property="Margin" Value="0,4,0,0" />
+                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Editor.CoverError}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
                 <Expander Header="{DynamicResource Library.EditorAdvanced}" Style="{StaticResource EditorExpander}" IsExpanded="False" Margin="0,0,0,16">
                     <StackPanel>
-                        <StackPanel Style="{StaticResource EditorField}">
-                            <Label Content="{DynamicResource Library.EditorDescription}" Target="{Binding ElementName=DescriptionField}" Style="{StaticResource EditorLabel}" />
-                            <TextBox x:Name="DescriptionField" Text="{Binding Editor.Description, UpdateSourceTrigger=PropertyChanged}"
-                                     AcceptsReturn="True" Height="78" MaxLength="2000" TextWrapping="Wrap" VerticalContentAlignment="Top"
-                                     VerticalScrollBarVisibility="Auto" AutomationProperties.Name="{DynamicResource Library.EditorDescription}" />
-                        </StackPanel>
                         <StackPanel Style="{StaticResource EditorField}">
                             <Label Content="{DynamicResource Library.EditorCategory}" Target="{Binding ElementName=CategoryField}" Style="{StaticResource EditorLabel}" />
                             <ComboBox x:Name="CategoryField" ItemsSource="{Binding Editor.Categories}"

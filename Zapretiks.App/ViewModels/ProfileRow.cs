@@ -1,9 +1,16 @@
+using System.Windows;
+using System.Windows.Media;
 using Zapretiks.Core;
 
 namespace Zapretiks.App.ViewModels;
 
 internal sealed record ProfileRow(SolutionProfile Profile, bool IsInstalled, bool IsEnabled = false)
 {
+    private static readonly Lazy<ResourceDictionary> DemoMarks = new(() => new ResourceDictionary
+    {
+        Source = new Uri("/Zapretiks.App;component/Resources/CatalogMarks.xaml", UriKind.Relative)
+    });
+
     public string Id => Profile.Id;
     public bool SharesLocalId { get; init; }
     public string Title => Profile.Name;
@@ -13,6 +20,8 @@ internal sealed record ProfileRow(SolutionProfile Profile, bool IsInstalled, boo
     public string CategoryLabel => Profile.Category == ProfileCategory.Games ? "Игры" : "Сервисы";
     public string SourceLabel => Profile.Source;
     public bool IsDemo => Profile.IsDemo;
+    public ImageSource? Cover => (ImageSource?)SolutionCover.Decode(Profile.CoverImage)
+        ?? (IsDemo ? DemoMarks.Value[Id] as ImageSource : null);
     public string VerificationLabel => IsDemo ? "Демо" : Profile.IsVerified ? "Проверено" : "Без проверки";
     public string ExampleExplanation => "Учебное решение. Его адреса используются только в примере.";
     public bool HasCompatibilityNotes => !IsDemo && !string.IsNullOrWhiteSpace(Profile.CompatibilityNotes);

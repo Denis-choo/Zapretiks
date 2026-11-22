@@ -1,15 +1,20 @@
 using System.IO;
+using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using Zapretiks.Core;
 
 namespace Zapretiks.App.ViewModels;
 
-internal sealed class ProfileEditorViewModel
+internal sealed class ProfileEditorViewModel : ViewModel
 {
     public const string LocalSource = "Создано в Zapretiks";
     private const int MaxListTextLength = 131072;
     private readonly string profileId;
+    private string? coverImage;
+    private string? coverError;
+    private bool isReadingCover;
 
-    public ProfileEditorViewModel(SolutionProfile? original = null)
+    public ProfileEditorViewModel(SolutionProfile? original = null, DesktopDialogs? dialogs = null)
     {
         OriginalProfile = original;
         profileId = original?.Id ?? $"local-{Guid.NewGuid():N}";
@@ -24,6 +29,29 @@ internal sealed class ProfileEditorViewModel
         ExcludeNetworksText = JoinLines(original?.ExcludeNetworks);
         CompatibleStrategiesText = JoinLines(original?.CompatibleStrategies);
         CompatibilityNotes = original?.CompatibilityNotes ?? "";
+        coverImage = original?.CoverImage;
+        ChooseCoverCommand = new UiCommand(async _ =>
+        {
+            if (dialogs?.ChooseCover() is not { } path)
+                return;
+            CoverError = null;
+            SetCoverBusy(true);
+            try
+            {
+                SetCover(await SolutionCover.ReadFileAsync(path));
+            }
+            finally
+            {
+                SetCoverBusy(false);
+            }
+        }, error => CoverError = error is InvalidDataException ? error.Message : "Не удалось открыть файл обложки.",
+            _ => dialogs is not null && !IsReadingCover);
+        RemoveCoverCommand = new UiCommand(_ =>
+        {
+            SetCover(null);
+            CoverError = null;
+            return Task.CompletedTask;
+        }, _ => CoverError = "Не удалось убрать обложку.", _ => HasCover && !IsReadingCover);
     }
 
     public SolutionProfile? OriginalProfile { get; }
@@ -42,6 +70,13 @@ internal sealed class ProfileEditorViewModel
     public string CompatibleStrategiesText { get; set; }
     public string CompatibilityNotes { get; set; }
     public IReadOnlyList<string> Categories { get; } = ["Сервисы", "Игры"];
+    public ICommand ChooseCoverCommand { get; }
+    public ICommand RemoveCoverCommand { get; }
+    public bool IsReadingCover => isReadingCover;
+    public string? CoverError { get => coverError; private set => Set(ref coverError, value); }
+    public BitmapSource? Cover => SolutionCover.Decode(coverImage);
+    public bool HasCover => coverImage is not null;
+    public string ChooseCoverLabel => IsReadingCover ? "Загружаем…" : HasCover ? "Заменить обложку" : "Выбрать обложку";
 
     public static bool CanEdit(SolutionProfile profile) => !profile.IsVerified &&
         profile.Source is LocalSource or "Локальный импорт";
@@ -84,11 +119,30 @@ internal sealed class ProfileEditorViewModel
             IncludeNetworks = includeNetworks,
             ExcludeNetworks = excludeNetworks,
             CompatibleStrategies = ReadLines(CompatibleStrategiesText, "Совместимые стратегии", 40),
-            CompatibilityNotes = CompatibilityNotes
+            CompatibilityNotes = CompatibilityNotes,
+            CoverImage = coverImage
         };
         var normalized = ProfileValidation.Normalize(profile);
         ConvertedUrlCount = includedAddresses.UrlCount + excludedAddresses.UrlCount;
         return normalized;
+    }
+
+    private void SetCover(string? value)
+    {
+        coverImage = value;
+        Raise(nameof(Cover));
+        Raise(nameof(HasCover));
+        Raise(nameof(ChooseCoverLabel));
+        CommandManager.InvalidateRequerySuggested();
+    }
+
+    private void SetCoverBusy(bool value)
+    {
+        if (Set(ref isReadingCover, value, nameof(IsReadingCover)))
+        {
+            Raise(nameof(ChooseCoverLabel));
+            CommandManager.InvalidateRequerySuggested();
+        }
     }
 
     private static string JoinLines(string[]? values) => values is null ? "" : string.Join(Environment.NewLine, values);

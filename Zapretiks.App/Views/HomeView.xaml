@@ -214,6 +214,9 @@
                             <Button Content="Остановить zapret" Command="{Binding StopCommand}"
                                     Visibility="{Binding HasManagedRun, Converter={StaticResource BooleanVisibility}}"
                                     Style="{StaticResource SecondaryButton}" Margin="0,0,8,6" />
+                            <Button Content="Перезапустить zapret" Command="{Binding RestartCommand}"
+                                    Visibility="{Binding HasManagedRun, Converter={StaticResource BooleanVisibility}}"
+                                    Style="{StaticResource GhostButton}" Margin="0,0,8,6" />
                         </WrapPanel>
                         <WrapPanel Margin="0,10,0,0">
                             <Button Content="{DynamicResource Home.RefreshStatus}" Command="{Binding RefreshStatusCommand}"

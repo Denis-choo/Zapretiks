@@ -36,11 +36,15 @@ public sealed class FlowsealRuntimeController : IZapretRuntimeController
 
     public Task<RuntimeControlResult> StartAsync(ZapretInstallation installation, string strategyFile,
         CancellationToken cancellationToken = default) =>
-        ExecuteAsync(token => ChangeStrategy(installation, strategyFile, false, token), cancellationToken);
+        ExecuteAsync(token => ChangeStrategy(installation, strategyFile, RuntimeAction.Start, token), cancellationToken);
 
     public Task<RuntimeControlResult> SwitchAsync(ZapretInstallation installation, string strategyFile,
         CancellationToken cancellationToken = default) =>
-        ExecuteAsync(token => ChangeStrategy(installation, strategyFile, true, token), cancellationToken);
+        ExecuteAsync(token => ChangeStrategy(installation, strategyFile, RuntimeAction.Switch, token), cancellationToken);
+
+    public Task<RuntimeControlResult> RestartAsync(ZapretInstallation installation, ManagedZapretRun run,
+        CancellationToken cancellationToken = default) =>
+        ExecuteAsync(token => ChangeStrategy(installation, run.StrategyFile, RuntimeAction.Restart, token, run), cancellationToken);
 
     public Task<RuntimeControlResult> StopAsync(CancellationToken cancellationToken = default) =>
         ExecuteAsync(_ => StopCurrent(), cancellationToken);
@@ -67,8 +71,10 @@ public sealed class FlowsealRuntimeController : IZapretRuntimeController
         }
     }, cancellationToken);
 
-    private RuntimeControlResult ChangeStrategy(ZapretInstallation installation, string strategy, bool switching,
-        CancellationToken token)
+    private enum RuntimeAction { Start, Switch, Restart }
+
+    private RuntimeControlResult ChangeStrategy(ZapretInstallation installation, string strategy, RuntimeAction action,
+        CancellationToken token, ManagedZapretRun? expectedRun = null)
     {
         if (!installation.IsValid || !ProfileValidation.IsStrategyFileName(strategy) ||
             !installation.Strategies.Any(item => Same(item.FileName, strategy)))
@@ -84,15 +90,17 @@ public sealed class FlowsealRuntimeController : IZapretRuntimeController
             return new(false, "Для запуска zapret нужны права администратора. Закройте Zapretiks и откройте его от имени администратора.");
 
         var previous = Current;
-        if (switching && (previous is null || !Same(previous.Directory, root)))
-            return new(false, "Переключать можно только стратегию, которую Zapretiks включил в этой папке.");
-        if (!switching && previous is not null)
+        if (action == RuntimeAction.Restart && !ReferenceEquals(previous, expectedRun))
+            return new(false, "Работающая стратегия изменилась. Проверьте статус и повторите действие.");
+        if (action != RuntimeAction.Start && (previous is null || !Same(previous.Directory, root)))
+            return new(false, "Zapretiks управляет только стратегией, запущенной из приложения в этой папке.");
+        if (action == RuntimeAction.Start && previous is not null)
             return new(false, "Zapretiks уже управляет запущенной стратегией.");
 
         var conflict = RuntimeConflict(fresh, previous is null ? 0 : 1, token);
         if (conflict is not null)
             return new(false, conflict);
-        if (previous is not null && Same(previous.StrategyFile, strategy))
+        if (action == RuntimeAction.Switch && previous is not null && Same(previous.StrategyFile, strategy))
             return new(true, "Эта стратегия уже работает.");
 
         token.ThrowIfCancellationRequested();
@@ -101,9 +109,15 @@ public sealed class FlowsealRuntimeController : IZapretRuntimeController
         try
         {
             StartConfirmed(fresh, strategy, token);
-            return new(true, $"Стратегия {strategy} запущена.");
+            return new(true, action == RuntimeAction.Restart
+                ? $"Стратегия {strategy} перезапущена."
+                : $"Стратегия {strategy} запущена.");
         }
-        catch (Exception error) when (previous is not null && Expected(error))
+        catch (Exception error) when (action == RuntimeAction.Restart && Expected(error))
+        {
+            return new(false, $"Не удалось перезапустить {strategy}. {Explain(error)}");
+        }
+        catch (Exception error) when (action == RuntimeAction.Switch && previous is not null && Expected(error))
         {
             var reason = Explain(error);
             try

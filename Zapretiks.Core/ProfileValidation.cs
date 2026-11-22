@@ -41,7 +41,8 @@ public static class ProfileValidation
             ExcludeDomains = NormalizeList(profile.ExcludeDomains, NormalizeDomain, "Исключения доменов"),
             IncludeNetworks = includes,
             ExcludeNetworks = NormalizeList(profile.ExcludeNetworks, NormalizeNetwork, "Исключения IP"),
-            CompatibleStrategies = NormalizeList(profile.CompatibleStrategies, NormalizeStrategy, "Стратегии", 40)
+            CompatibleStrategies = NormalizeList(profile.CompatibleStrategies, NormalizeStrategy, "Стратегии", 40),
+            CoverImage = CoverImageData.Validate(profile.CoverImage)
         };
     }
 

@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 
 namespace Zapretiks.App.Views;
@@ -46,5 +47,17 @@ public partial class CatalogView : UserControl
     {
         if (e.AddedItems.Count > 0)
             DetailScroll?.ScrollToTop();
+    }
+}
+
+public sealed class CatalogCardPanel : UniformGrid
+{
+    protected override Size MeasureOverride(Size availableSize)
+    {
+        const double minimumCardWidthWithGap = 181;
+        Columns = double.IsFinite(availableSize.Width)
+            ? Math.Max(1, (int)(availableSize.Width / minimumCardWidthWithGap))
+            : 1;
+        return base.MeasureOverride(availableSize);
     }
 }

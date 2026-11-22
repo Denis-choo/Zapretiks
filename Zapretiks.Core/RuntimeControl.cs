@@ -12,5 +12,8 @@ public interface IZapretRuntimeController : IDisposable
         CancellationToken cancellationToken = default);
     Task<RuntimeControlResult> SwitchAsync(ZapretInstallation installation, string strategyFile,
         CancellationToken cancellationToken = default);
+    /// <summary>Restarts the active strategy identified by the instance returned from <see cref="Current"/>.</summary>
+    Task<RuntimeControlResult> RestartAsync(ZapretInstallation installation, ManagedZapretRun run,
+        CancellationToken cancellationToken = default);
     Task<RuntimeControlResult> StopAsync(CancellationToken cancellationToken = default);
 }

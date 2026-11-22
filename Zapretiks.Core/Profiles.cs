@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Zapretiks.Core;
 
 public enum ProfileCategory
@@ -25,6 +27,8 @@ public sealed record SolutionProfile
     public string[] ExcludeNetworks { get; init; } = [];
     public string[] CompatibleStrategies { get; init; } = [];
     public string CompatibilityNotes { get; init; } = "";
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? CoverImage { get; init; }
 }
 
 public sealed record InstalledProfile(SolutionProfile Profile, bool IsEnabled);

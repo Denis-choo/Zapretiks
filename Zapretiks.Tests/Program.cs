@@ -14,6 +14,7 @@ var tests = new (string Name, Func<Task> Run)[]
     ("Local state survives a fresh store instance", PersistState),
     ("Duplicate IDs leave the last saved state readable", RejectDuplicates),
     ("Profile exchange validates the schema and clears verification", TransferProfile),
+    ("Cover images are portable and reject remote references and oversized rasters", TransferCover),
     ("Flowseal folder validation and strategy discovery", InspectInstallation),
     ("Preview skips duplicates, conflicts, and demo entries without writing", PreviewChanges),
     ("Disabled IPSet keeps its mode marker", PreserveIpsetMode),
@@ -107,6 +108,31 @@ static async Task TransferProfile()
     await RejectAsync(() => transfer.ImportAsync(path));
     await File.WriteAllBytesAsync(path, new byte[JsonProfileTransfer.MaxProfileBytes + 1]);
     await RejectAsync(() => transfer.ImportAsync(path));
+}
+
+static async Task TransferCover()
+{
+    const string cover = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j9vkAAAAASUVORK5CYII=";
+    using var directory = Directory.CreateTempSubdirectory("zapretiks-cover-").ToCleanup();
+    var path = Path.Combine(directory.Path, "solution.json");
+    var transfer = new JsonProfileTransfer();
+    await transfer.ExportAsync(path, Sample());
+    Check((await transfer.ImportAsync(path)).CoverImage is null, "Covers should remain optional.");
+    await transfer.ExportAsync(path, Sample() with { CoverImage = cover });
+    Check((await transfer.ImportAsync(path)).CoverImage == cover, "Covers should survive solution JSON export and import.");
+    var store = new JsonUserStore(directory.Path);
+    await store.SaveAsync(new(new(), [new(Sample() with { CoverImage = cover }, false)]));
+    Check((await store.LoadAsync()).Profiles.Single().Profile.CoverImage == cover, "Covers should survive a local restart.");
+
+    var oversized = Convert.FromBase64String(cover);
+    System.Buffers.Binary.BinaryPrimitives.WriteInt32BigEndian(oversized.AsSpan(16), CoverImageData.MaxSide + 1);
+    var document = System.Text.Json.Nodes.JsonNode.Parse(await File.ReadAllTextAsync(path))!.AsObject();
+    foreach (var invalid in new[] { "https://example.test/cover.png", Convert.ToBase64String(oversized), "Zg==" })
+    {
+        document["coverImage"] = invalid;
+        await File.WriteAllTextAsync(path, document.ToJsonString());
+        await RejectAsync(() => transfer.ImportAsync(path));
+    }
 }
 
 static async Task InspectInstallation()

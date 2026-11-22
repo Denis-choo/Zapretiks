@@ -28,4 +28,14 @@ internal sealed class DesktopDialogs
         };
         return dialog.ShowDialog(Application.Current.MainWindow) == true ? dialog.FileName : null;
     }
+
+    public string? ChooseCover()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Выберите обложку решения",
+            Filter = "Изображения PNG и JPEG (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg"
+        };
+        return dialog.ShowDialog(Application.Current.MainWindow) == true ? dialog.FileName : null;
+    }
 }

@@ -63,7 +63,7 @@ public sealed class JsonUserStore : IUserStore
 
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var profiles = state.Profiles.Select(profile => profile is null
-            ? throw new InvalidDataException("В библиотеке найден пустое решение.")
+            ? throw new InvalidDataException("В библиотеке найдено пустое решение.")
             : profile with { Profile = ProfileJson.NormalizeUnique(profile.Profile, seen) }).ToArray();
         return state with { Profiles = profiles };
     }
@@ -104,7 +104,7 @@ internal static class ProfileJson
     public static SolutionProfile NormalizeUnique(SolutionProfile? profile, HashSet<string> seen)
     {
         if (profile is null)
-            throw new InvalidDataException("В данных найден пустое решение.");
+            throw new InvalidDataException("В данных найдено пустое решение.");
 
         var normalized = ProfileValidation.Normalize(profile);
         if (!seen.Add(normalized.Id))

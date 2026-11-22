@@ -54,11 +54,12 @@ internal sealed class LibraryViewModel : ViewModel
             System.Windows.Clipboard.SetText(PreviewText);
             StatusMessage = "Отчёт скопирован.";
         });
-        CreateCommand = session.Command(() => OpenEditor(new ProfileEditorViewModel()), () => session.CanSave && IsBrowsing);
-        EditCommand = session.Command(() => OpenEditor(new ProfileEditorViewModel(SelectedItem!.Profile)),
+        CreateCommand = session.Command(() => OpenEditor(new ProfileEditorViewModel(dialogs: session.Dialogs)),
+            () => session.CanSave && IsBrowsing);
+        EditCommand = session.Command(() => OpenEditor(new ProfileEditorViewModel(SelectedItem!.Profile, session.Dialogs)),
             () => session.CanSave && IsBrowsing && CanEditSelected);
-        SaveEditorCommand = session.Command(SaveEditorAsync, () => Editor is not null && !IsSaving);
-        CancelEditorCommand = session.Command(CancelEditorAsync, () => Editor is not null && !IsSaving);
+        SaveEditorCommand = session.Command(SaveEditorAsync, () => Editor is { IsReadingCover: false } && !IsSaving);
+        CancelEditorCommand = session.Command(CancelEditorAsync, () => Editor is { IsReadingCover: false } && !IsSaving);
         session.Changed += Refresh;
     }
 
@@ -319,7 +320,10 @@ internal sealed class LibraryViewModel : ViewModel
                 PreviewPlan = null;
                 StatusMessage = undo ? "Последнее изменение файлов отменено. Выбор решений сохранён."
                     : "Изменения записаны в списки.";
-                StatusMessage += " Если zapret уже запущен, перезапустите его для загрузки списков.";
+                if (session.ManagedRun is not null)
+                    StatusMessage += " Нажмите «Перезапустить zapret» на «Обзоре», чтобы загрузить списки.";
+                else if (session.RuntimeStatus.State == ZapretRuntimeState.Running)
+                    StatusMessage += " Перезапустите zapret там, где он был запущен, чтобы загрузить списки.";
                 await RefreshPlanAsync();
             });
         }

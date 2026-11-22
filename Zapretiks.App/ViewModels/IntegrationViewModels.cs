@@ -151,7 +151,7 @@ internal sealed class HomeViewModel : IntegrationViewModel
         get
         {
             if (Session.RuntimeOperation is not null)
-                return SelectedStrategy ?? "";
+                return Session.RuntimeOperationStrategy ?? "";
             if (IsCheckingStatus)
                 return "Проверяем файлы сборки и процессы winws.exe.";
 
@@ -188,6 +188,7 @@ internal sealed class HomeViewModel : IntegrationViewModel
     public ICommand StartCommand => Session.StartCommand;
     public ICommand StopCommand => Session.StopCommand;
     public ICommand SwitchCommand => Session.SwitchCommand;
+    public ICommand RestartCommand => Session.RestartCommand;
     public int InstalledCount => Session.State.Profiles.Length;
     public bool HasProfiles => InstalledCount > 0;
     public int EnabledCount => Session.State.Profiles.Count(item => item.IsEnabled);

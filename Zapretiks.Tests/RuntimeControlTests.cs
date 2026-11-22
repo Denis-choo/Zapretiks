@@ -18,6 +18,15 @@ internal static class RuntimeControlTests
         var switched = await control.SwitchAsync(installation, "general (ALT).bat");
         Check(switched.Succeeded && control.Current?.StrategyFile == "general (ALT).bat", switched.Message);
 
+        var originalRun = control.Current!;
+        var restarted = await control.RestartAsync(installation, originalRun);
+        var restartedRun = control.Current!;
+        Check(restarted.Succeeded && restartedRun?.StrategyFile == originalRun.StrategyFile &&
+            !ReferenceEquals(originalRun, restartedRun), restarted.Message);
+        var staleRestart = await control.RestartAsync(installation, originalRun);
+        Check(!staleRestart.Succeeded && ReferenceEquals(restartedRun, control.Current),
+            "A restart must apply to the exact run captured by the caller.");
+
         // An external engine at exactly the same path is still outside the controller's job.
         using var external = Process.Start(new ProcessStartInfo(fixture.Engine, "--runtime-test-engine")
         {
@@ -26,6 +35,9 @@ internal static class RuntimeControlTests
         })!;
         try
         {
+            var blockedRestart = await control.RestartAsync(installation, restartedRun!);
+            Check(!blockedRestart.Succeeded && ReferenceEquals(restartedRun, control.Current) && !external.HasExited,
+                "A restart must leave both processes alive when the installation has an external engine.");
             var stopped = await control.StopAsync();
             Check(stopped.Succeeded && control.Current is null && !external.HasExited, stopped.Message);
             var externalConflict = await control.StartAsync(installation, "general.bat");
