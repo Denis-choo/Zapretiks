@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Windows.Input;
 using Zapretiks.Core;
 
@@ -10,6 +11,7 @@ internal sealed class CatalogViewModel : ViewModel
     private const string Verified = "Проверенные";
     private const string Community = "Сообщество";
     private const string Demo = "Демо";
+    private const string References = "На проверке";
     private readonly Session session;
     private readonly ICatalogService catalog;
     private IReadOnlyList<SolutionProfile> profiles = [];
@@ -27,7 +29,13 @@ internal sealed class CatalogViewModel : ViewModel
         this.catalog = catalog;
         ResetFiltersCommand = session.Action(ResetFilters);
         InstallCommand = session.Command(ToggleInstallationAsync,
-            parameter => session.CanSave && (parameter as ProfileRow ?? SelectedItem) is { SharesLocalId: false });
+            parameter => session.CanSave && (parameter as ProfileRow ?? SelectedItem) is { SharesLocalId: false, IsReference: false });
+        OpenReferenceCommand = session.Command(parameter =>
+        {
+            if ((parameter as ProfileRow ?? SelectedItem)?.Profile.ReportUrl is { } url)
+                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+            return Task.CompletedTask;
+        }, parameter => (parameter as ProfileRow ?? SelectedItem) is { IsReference: true });
         OpenInLibraryCommand = session.Action(() =>
         {
             if (SelectedItem is { IsInstalled: true } row)
@@ -39,7 +47,8 @@ internal sealed class CatalogViewModel : ViewModel
     public IReadOnlyList<string> Categories { get; } = [AllCategories, "Игры", "Сервисы"];
     public IReadOnlyList<string> Sources => sources;
     public bool HasSourceFilter => Sources.Count > 2;
-    public bool HasOnlyExamples => profiles.Count > 0 && profiles.All(profile => profile.IsDemo);
+    public bool HasReferences => profiles.Any(profile => profile.ReportUrl is not null);
+    public bool HasOnlyExamples => !HasReferences && profiles.Count > 0 && profiles.All(profile => profile.IsDemo);
     public IReadOnlyList<ProfileRow> Items => items;
     public bool HasItems => Items.Count > 0;
     public bool HasFilters => SearchText.Length > 0 || SelectedCategory != AllCategories || SelectedSource != AllSources;
@@ -52,6 +61,7 @@ internal sealed class CatalogViewModel : ViewModel
     public ICommand ResetFiltersCommand { get; }
     public ICommand InstallCommand { get; }
     public ICommand OpenInLibraryCommand { get; }
+    public ICommand OpenReferenceCommand { get; }
 
     public string SearchText
     {
@@ -144,7 +154,9 @@ internal sealed class CatalogViewModel : ViewModel
             available.Add(Verified);
         if (profiles.Any(profile => !profile.IsVerified && !profile.IsDemo))
             available.Add(Community);
-        if (profiles.Any(profile => profile.IsDemo))
+        if (HasReferences)
+            available.Add(References);
+        if (profiles.Any(profile => profile.IsDemo && profile.ReportUrl is null))
             available.Add(Demo);
         sources = available;
         if (!sources.Contains(selectedSource))
@@ -154,13 +166,15 @@ internal sealed class CatalogViewModel : ViewModel
         Raise(nameof(SelectedSource));
         Raise(nameof(HasSourceFilter));
         Raise(nameof(HasOnlyExamples));
+        Raise(nameof(HasReferences));
     }
 
     private bool MatchesSource(ProfileRow row) => SelectedSource switch
     {
         Verified => row.Profile.IsVerified && !row.IsDemo,
         Community => !row.IsDemo && !row.Profile.IsVerified,
-        Demo => row.IsDemo,
+        Demo => row.IsDemo && !row.IsReference,
+        References => row.IsReference,
         _ => true
     };
 

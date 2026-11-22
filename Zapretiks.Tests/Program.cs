@@ -10,7 +10,7 @@ if (args is ["--runtime-test-engine"])
 var tests = new (string Name, Func<Task> Run)[]
 {
     ("Canonical domain and network validation", ValidateEntries),
-    ("Embedded catalog contains explicitly marked demo profiles", LoadCatalog),
+    ("Embedded catalog labels demos and validates links to user reports", LoadCatalog),
     ("Local state survives a fresh store instance", PersistState),
     ("Duplicate IDs leave the last saved state readable", RejectDuplicates),
     ("Profile exchange validates the schema and clears verification", TransferProfile),
@@ -66,6 +66,16 @@ static async Task LoadCatalog()
     var profiles = await new EmbeddedCatalogService().LoadAsync();
     Check(profiles.Count >= 4 && profiles.All(item => item.IsDemo && !item.IsVerified), "Seed entries must carry demo provenance.");
     Check(profiles.Select(item => item.Category).Distinct().Count() == 2, "Both demo categories should be represented.");
+    var reports = profiles.Where(item => item.ReportUrl is not null).ToArray();
+    Check(reports.Length == 6 && reports.All(item => new Uri(item.ReportUrl!).Host == "github.com" &&
+        item.IncludeDomains.Length + item.ExcludeDomains.Length + item.IncludeNetworks.Length + item.ExcludeNetworks.Length == 0),
+        "User reports must have source links and carry no list changes.");
+    var report = reports[0];
+    await RejectAsync(() => Task.FromResult(ProfileValidation.Normalize(report with { IsDemo = false })));
+    await RejectAsync(() => Task.FromResult(ProfileValidation.Normalize(report with
+    {
+        ReportUrl = "https://github.com@example.org/owner/repo/issues/1"
+    })));
 }
 
 static async Task PersistState()

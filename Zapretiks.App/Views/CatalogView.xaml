@@ -86,6 +86,11 @@
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsReference}" Value="True">
+                        <Setter Property="AutomationProperties.ItemStatus" Value="{DynamicResource Catalog.ReferenceStatus}" />
+                    </DataTrigger>
+                </Style.Triggers>
             </Style>
             <DataTemplate x:Key="CatalogCard">
                 <Grid Height="186">
@@ -98,6 +103,14 @@
                         <Border x:Name="CoverTint" Background="{DynamicResource WarmSurfaceBrush}" CornerRadius="8,8,0,0" />
                         <Image x:Name="CoverImage" Source="{Binding Cover}" Stretch="Uniform" Margin="10,7,10,19"
                                RenderOptions.BitmapScalingMode="HighQuality" IsHitTestVisible="False" />
+                        <Border x:Name="ReferenceMark" Width="60" Height="60" CornerRadius="12"
+                                HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,9,0,0"
+                                Background="{DynamicResource AccentSurfaceBrush}"
+                                IsHitTestVisible="False" Visibility="Collapsed">
+                            <TextBlock Text="{Binding ReferenceLabel}" FontSize="24" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource AccentSoftBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
                         <Border x:Name="CoverShadow" Height="56" VerticalAlignment="Bottom" IsHitTestVisible="False"
                                 Background="{Binding Background, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
                                 OpacityMask="{StaticResource CoverFade}" />
@@ -131,6 +144,9 @@
                                         <DataTrigger Binding="{Binding IsDemo}" Value="True">
                                             <Setter Property="Text" Value="{Binding CategoryLabel, StringFormat='{}{0} · Демо'}" />
                                         </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsReference}" Value="True">
+                                            <Setter Property="Text" Value="{DynamicResource Catalog.ReferenceStatus}" />
+                                        </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </TextBlock.Style>
@@ -143,6 +159,13 @@
                         <Setter TargetName="CoverImage" Property="Visibility" Value="Collapsed" />
                         <Setter TargetName="CoverShadow" Property="Visibility" Value="Collapsed" />
                         <Setter TargetName="CardHeader" Property="Height" Value="50" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding IsReference}" Value="True">
+                        <Setter TargetName="CardHeader" Property="Height" Value="102" />
+                        <Setter TargetName="CoverTint" Property="Visibility" Value="Visible" />
+                        <Setter TargetName="CoverShadow" Property="Visibility" Value="Visible" />
+                        <Setter TargetName="CoverImage" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="ReferenceMark" Property="Visibility" Value="Visible" />
                     </DataTrigger>
                 </DataTemplate.Triggers>
             </DataTemplate>
@@ -167,13 +190,18 @@
                     <TextBlock Text="{DynamicResource Shell.Catalog}" Style="{DynamicResource PageTitleText}"
                                AutomationProperties.HeadingLevel="Level1" />
                 </DockPanel>
-                <TextBlock Text="{DynamicResource Catalog.ExamplesNote}" Margin="0,0,0,15">
+                <TextBlock Margin="0,0,0,15">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
                             <Setter Property="Visibility" Value="Collapsed" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding HasOnlyExamples}" Value="True">
                                     <Setter Property="Visibility" Value="Visible" />
+                                    <Setter Property="Text" Value="{DynamicResource Catalog.ExamplesNote}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding HasReferences}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Setter Property="Text" Value="{DynamicResource Catalog.ReferencesNote}" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -288,52 +316,86 @@
                     <StackPanel Margin="22,26,21,26" MaxWidth="600" Style="{StaticResource ProfileDetailPage}">
                         <ContentControl Content="{Binding SelectedItem}" ContentTemplate="{StaticResource ProfileIntro}"
                                         HorizontalContentAlignment="Stretch" Focusable="False" />
-                        <WrapPanel Margin="0,2,0,20">
-                            <Button Content="{DynamicResource Catalog.OpenProfile}" Command="{Binding OpenInLibraryCommand}" Margin="0,0,0,4">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SelectedItem.IsInstalled}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-                            <Button HorizontalAlignment="Left" MinWidth="90"
-                                    Command="{Binding InstallCommand}" CommandParameter="{Binding SelectedItem}" Margin="0,0,0,4">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-                                        <Setter Property="Content" Value="{DynamicResource Catalog.AddProfile}" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SelectedItem.IsInstalled}" Value="True">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding SelectedItem.SharesLocalId}" Value="True">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-                        </WrapPanel>
-                        <TextBlock Text="{DynamicResource Catalog.LocalVersionExists}" Margin="0,0,0,12">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
+                        <StackPanel>
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
                                     <Setter Property="Visibility" Value="Collapsed" />
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding SelectedItem.SharesLocalId}" Value="True">
+                                        <DataTrigger Binding="{Binding SelectedItem.IsReference}" Value="True">
                                             <Setter Property="Visibility" Value="Visible" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                        <TextBlock Style="{StaticResource PageNotice}" Text="{Binding StatusMessage}"
-                                   AutomationProperties.LiveSetting="Polite" />
-                        <ContentControl Content="{Binding SelectedItem}" ContentTemplate="{StaticResource ProfileDetails}"
-                                        HorizontalContentAlignment="Stretch" Focusable="False" />
+                            </StackPanel.Style>
+                            <TextBlock Text="{DynamicResource Catalog.ReferenceStatus}" Foreground="{DynamicResource AccentSoftBrush}"
+                                       FontWeight="SemiBold" Margin="0,0,0,4" />
+                            <TextBlock Text="{Binding SelectedItem.ReferenceDateLabel, StringFormat='Сообщение от {0}'}"
+                                       Style="{StaticResource PageMetadata}" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding SelectedItem.ReferenceNote}" Style="{DynamicResource BodyText}"
+                                       Margin="0,12,0,14" />
+                            <Button Content="{DynamicResource Catalog.OpenReference}" Command="{Binding OpenReferenceCommand}"
+                                    CommandParameter="{Binding SelectedItem}" Style="{DynamicResource PrimaryButton}"
+                                    HorizontalAlignment="Left" />
+                            <TextBlock Style="{StaticResource PageNotice}" Text="{Binding StatusMessage}" Margin="0,10,0,0"
+                                       AutomationProperties.LiveSetting="Polite" />
+                        </StackPanel>
+                        <StackPanel>
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedItem.IsReference}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <WrapPanel Margin="0,2,0,20">
+                                <Button Content="{DynamicResource Catalog.OpenProfile}" Command="{Binding OpenInLibraryCommand}" Margin="0,0,0,4">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedItem.IsInstalled}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <Button HorizontalAlignment="Left" MinWidth="90"
+                                        Command="{Binding InstallCommand}" CommandParameter="{Binding SelectedItem}" Margin="0,0,0,4">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                            <Setter Property="Content" Value="{DynamicResource Catalog.AddProfile}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedItem.IsInstalled}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding SelectedItem.SharesLocalId}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </WrapPanel>
+                            <TextBlock Text="{DynamicResource Catalog.LocalVersionExists}" Margin="0,0,0,12">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedItem.SharesLocalId}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBlock Style="{StaticResource PageNotice}" Text="{Binding StatusMessage}"
+                                       AutomationProperties.LiveSetting="Polite" />
+                            <ContentControl Content="{Binding SelectedItem}" ContentTemplate="{StaticResource ProfileDetails}"
+                                            HorizontalContentAlignment="Stretch" Focusable="False" />
+                        </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
             </Grid>

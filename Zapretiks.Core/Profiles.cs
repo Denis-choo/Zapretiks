@@ -29,6 +29,8 @@ public sealed record SolutionProfile
     public string CompatibilityNotes { get; init; } = "";
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? CoverImage { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? ReportUrl { get; init; }
 }
 
 public sealed record InstalledProfile(SolutionProfile Profile, bool IsEnabled);

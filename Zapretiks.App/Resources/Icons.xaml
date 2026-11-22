@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
     <sys:String x:Key="Glyph.Home">&#xE80F;</sys:String>
-    <sys:String x:Key="Glyph.Catalog">&#xE71D;</sys:String>
+    <sys:String x:Key="Glyph.Catalog">&#xE8A9;</sys:String>
     <sys:String x:Key="Glyph.Library">&#xE8B7;</sys:String>
     <sys:String x:Key="Glyph.Games">&#xE7FC;</sys:String>
     <sys:String x:Key="Glyph.Settings">&#xE713;</sys:String>

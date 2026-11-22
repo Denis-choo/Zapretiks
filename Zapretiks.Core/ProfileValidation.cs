@@ -42,8 +42,29 @@ public static class ProfileValidation
             IncludeNetworks = includes,
             ExcludeNetworks = NormalizeList(profile.ExcludeNetworks, NormalizeNetwork, "Исключения IP"),
             CompatibleStrategies = NormalizeList(profile.CompatibleStrategies, NormalizeStrategy, "Стратегии", 40),
-            CoverImage = CoverImageData.Validate(profile.CoverImage)
+            CoverImage = CoverImageData.Validate(profile.CoverImage),
+            ReportUrl = NormalizeReportUrl(profile)
         };
+    }
+
+    private static string? NormalizeReportUrl(SolutionProfile profile)
+    {
+        if (profile.ReportUrl is null)
+            return null;
+
+        if (profile.IsDemo && !profile.IsVerified && profile.ReportUrl.Length <= 240 &&
+            Uri.TryCreate(profile.ReportUrl, UriKind.Absolute, out var uri) &&
+            uri.Scheme == Uri.UriSchemeHttps && uri.Host == "github.com" && uri.IsDefaultPort &&
+            uri.UserInfo.Length == 0 && uri.Query.Length == 0 && uri.Fragment.Length == 0)
+        {
+            var segments = uri.AbsolutePath.Split('/');
+            if (segments.Length == 5 && segments[1].Length > 0 && segments[2].Length > 0 &&
+                segments[3] is "issues" or "discussions" && segments[4].Length > 0 &&
+                segments[4].All(char.IsAsciiDigit))
+                return uri.AbsoluteUri;
+        }
+
+        throw new InvalidDataException("Для карточки на проверке укажите ссылку на issue или обсуждение GitHub.");
     }
 
     public static string? NormalizeDomain(string? input)

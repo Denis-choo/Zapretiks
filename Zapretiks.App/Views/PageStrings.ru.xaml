@@ -9,6 +9,9 @@
     <sys:String x:Key="Catalog.EmptyHint">Попробуйте другое название или выберите категорию «Все».</sys:String>
     <sys:String x:Key="Catalog.Reset">Показать все решения</sys:String>
     <sys:String x:Key="Catalog.ExamplesNote">Примеры решений для игр и сервисов.</sys:String>
+    <sys:String x:Key="Catalog.ReferencesNote">Обращения с GitHub и учебные решения.</sys:String>
+    <sys:String x:Key="Catalog.ReferenceStatus">На проверке</sys:String>
+    <sys:String x:Key="Catalog.OpenReference">Открыть обсуждение</sys:String>
     <sys:String x:Key="Catalog.AddProfile">Сохранить в библиотеку</sys:String>
     <sys:String x:Key="Catalog.OpenProfile">Открыть решение</sys:String>
     <sys:String x:Key="Catalog.Saved">Сохранено</sys:String>

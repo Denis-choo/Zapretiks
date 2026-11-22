@@ -67,7 +67,8 @@ internal sealed class ShellViewModel : ViewModel
             if (session.State.Settings.ZapretDirectory is null)
             {
                 catalog.ResetFiltersCommand.Execute(null);
-                catalog.SelectedItem = catalog.Items.FirstOrDefault(row => row.IsDemo) ?? catalog.Items.FirstOrDefault();
+                catalog.SelectedItem = catalog.Items.FirstOrDefault(row => row.IsDemo && !row.IsReference)
+                    ?? catalog.Items.FirstOrDefault();
             }
             Navigate("Catalog");
         });

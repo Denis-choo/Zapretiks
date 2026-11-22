@@ -224,6 +224,9 @@
                             <DataTrigger Binding="{Binding IsDemo}" Value="True">
                                 <Setter Property="Visibility" Value="Visible" />
                             </DataTrigger>
+                            <DataTrigger Binding="{Binding IsReference}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
